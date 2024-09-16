@@ -8,9 +8,9 @@ import time
 # Parameters
 number_of_hidden_neurons = 10
 population_size_per_gen = 100
-number_of_gen = 30
-mutation_chance = 0.2
-experiment_name = 'test_1_100pop_30gen'
+number_of_gen = 50
+mutation_chance = 0.1
+experiment_name = 'test_1_100pop_30gen_enemy3'
 input_size = 20  # Hardcoded number of sensors
 
 # choose this for not using visuals and thus making experiments faster
@@ -34,7 +34,7 @@ env = Environment(
     enemymode="static",
     level=2,
     visuals=True,
-    enemies=[1]
+    enemies=[3]
 )
 
 # Calculate genome size for the given controller
@@ -197,6 +197,31 @@ def sample_parents_for_crossover(parents_with_probabilities, num_children):
     return parent_pairs
 
 
+def save_fitness_statistics(generation, population_fitness, experiment_name):
+    """
+    Save the highest fitness, mean fitness, and standard deviation of fitness for a generation.
+    generation: The current generation number.
+    population_fitness: A list of fitness values for the population.
+    experiment_name: The directory where the file should be saved.
+    """
+    # Calculate statistics
+    highest_fitness = np.max(population_fitness)
+    mean_fitness = np.mean(population_fitness)
+    std_dev_fitness = np.std(population_fitness)
+
+    # Define file path
+    stats_file_path = os.path.join(experiment_name, f"fitness_stats_generation_{generation + 1}.txt")
+
+    # Save statistics to the file
+    with open(stats_file_path, 'w') as f:
+        f.write(f"Generation {generation + 1}\n")
+        f.write(f"Highest fitness: {highest_fitness}\n")
+        f.write(f"Mean fitness: {mean_fitness}\n")
+        f.write(f"Standard deviation: {std_dev_fitness}\n")
+
+    print(f"Saved fitness statistics to {stats_file_path}")
+
+
 def save_genomes_to_file(parents, generation, experiment_name):
     """
     Save the top parents to a .txt file for a given generation.
@@ -221,6 +246,9 @@ population = [create_random_genome(genome_size) for _ in range(population_size_p
 for generation in range(number_of_gen):
     print(f"Generation {generation + 1}/{number_of_gen}")
 
+    # Record the start time for generation evaluation
+    gen_start_time = time.time()
+
     # Evaluate fitness for each genome
     population_fitness = []
     for i, genome in enumerate(population):
@@ -233,6 +261,9 @@ for generation in range(number_of_gen):
 
     # Sort the tuples based on the fitness (second element of the tuple)
     sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
+
+    # Save fitness statistics for this generation
+    save_fitness_statistics(generation, population_fitness, experiment_name)
 
     # Calculate selection probabilities
     parents_with_probabilities = calculate_selection_probabilities(sorted_population_with_fitness)
@@ -261,6 +292,13 @@ for generation in range(number_of_gen):
     # You may want to save or log the best genome of this generation
     best_genome = sorted_population_with_fitness[0][0]
     print(f"Best fitness in generation {generation + 1}: {sorted_population_with_fitness[0][1]}")
+
+    # Record the end time for generation evaluation
+    gen_end_time = time.time()
+
+    # Calculate the time it took to evaluate this generation
+    gen_time = gen_end_time - gen_start_time
+    print(f"Time taken to evaluate generation {generation + 1}: {gen_time:.2f} seconds")
 
 # Calculate and print the total time trained
 end_time = time.time()

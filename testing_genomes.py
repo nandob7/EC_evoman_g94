@@ -9,7 +9,7 @@ number_of_hidden_neurons = 10
 population_size_per_gen = 100
 number_of_gen = 30
 mutation_chance = 0.2
-experiment_name = 'test_1_100pop_30gen'
+experiment_name = 'test_1_100pop_30gen_enemy3'
 input_size = 20  # Hardcoded number of sensors
 
 # Create experiment directory if it doesn't exist
@@ -28,7 +28,7 @@ env_test = Environment(
     enemymode="static",
     level=2,
     visuals=True,
-    enemies=[1]
+    enemies=[3]
 )
 
 def load_genomes_from_file(file_path):
@@ -45,7 +45,7 @@ def load_genomes_from_file(file_path):
     return genomes
 
 
-file_path = 'test_1_100pop_30gen/parents_generation_11.txt'
+file_path = 'test_1_100pop_30gen_enemy3/parents_generation_21.txt'
 genomes=load_genomes_from_file(file_path)
 
 best_genome = genomes[0]
