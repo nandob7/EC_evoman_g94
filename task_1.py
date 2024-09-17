@@ -136,15 +136,18 @@ def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.2):
 
     return offspring1, offspring2
 
-def mutate(genome, mutation_rate):
+def mutate(genome, mutation_rate, sigma=0.5, mutation_percentage=0.1, mutation_step=0.05):
     """
-    Perform scramble mutation on the genome.
-    A subset of the genome is randomly selected and its elements are shuffled.
-    mutation_rate: Probability of selecting a portion of the genome to scramble.
+    Perform mutation on the genome.
+    A subset of the genome is either scrambled, mutated using Gaussian mutation,
+    or mutated using box mutation. The mutation function is randomly chosen from a list.
+
+    mutation_rate: Probability of selecting a portion of the genome to mutate.
+    sigma: Standard deviation for the normal distribution used in the mutation.
+    mutation_percentage: The fraction of the genome to undergo mutation.
+    mutation_step: Maximum step size (range) for box mutation.
     """
-    genome_length = len(genome)
-    # Determine if mutation should happen based on mutation rate
-    if np.random.rand() < mutation_rate:
+    def scramble_mutation():
         # Select two random points in the genome to define the scramble range
         start_idx = np.random.randint(0, genome_length)
         end_idx = np.random.randint(start_idx, genome_length)
@@ -153,6 +156,30 @@ def mutate(genome, mutation_rate):
         np.random.shuffle(subset_to_scramble)
         # Replace the selected range with the shuffled version
         genome[start_idx:end_idx] = subset_to_scramble
+
+    def gaussian_mutation():
+        num_mutations = int(mutation_percentage * genome_length)
+        indices_to_mutate = np.random.choice(genome_length, num_mutations, replace=False)
+        for idx in indices_to_mutate:
+            random_value = np.random.normal(0, sigma)
+            genome[idx] += random_value
+
+    def box_mutation():
+        # Apply box mutation (small perturbation)
+        num_mutations = int(mutation_percentage * genome_length)
+        indices_to_mutate = np.random.choice(genome_length, num_mutations, replace=False)
+        for idx in indices_to_mutate:
+            # Generate a small random change within [-mutation_step, mutation_step]
+            random_step = np.random.uniform(-mutation_step, mutation_step)
+            genome[idx] += random_step
+    genome_length = len(genome)
+
+    application_list = [scramble_mutation, gaussian_mutation, box_mutation]
+
+    if np.random.rand() < mutation_rate:
+        # Randomly pick a mutation method from the list and apply it
+        chosen_mutation = random.choice(application_list)
+        chosen_mutation()  # Apply the selected mutation function
     return genome
 
 
