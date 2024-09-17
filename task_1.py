@@ -40,9 +40,11 @@ env = Environment(
 # Calculate genome size for the given controller
 genome_size = neural_controller.genome_size()
 
+
 # Function to create a random genome (weights)
 def create_random_genome(genome_size):
     return np.random.uniform(-1, 1, genome_size)
+
 
 # Function to evaluate the fitness of a controller with a given genome
 def evaluate_genome(genome):
@@ -52,6 +54,7 @@ def evaluate_genome(genome):
     fitness, _, _, _ = env.play(genome)
     return fitness
 
+
 def sort_by_fitness(parents_with_fitness):
     """
     Sort the parents based on their fitness values in descending order.
@@ -59,6 +62,7 @@ def sort_by_fitness(parents_with_fitness):
     Returns: A sorted list of (genome, fitness) tuples, with the highest fitness first.
     """
     return sorted(parents_with_fitness, key=lambda x: x[1], reverse=True)
+
 
 def parent_selection(sorted_population_with_fitness, num_elite, k=8):
     """
@@ -80,6 +84,7 @@ def parent_selection(sorted_population_with_fitness, num_elite, k=8):
     parents = elite + tournament_offspring
     return parents
 
+
 def k_member_tournament(sorted_fitness_tuple, k=8):
     """
     Perform k-member tournament selection and return the selected individual (genome, fitness).
@@ -89,6 +94,7 @@ def k_member_tournament(sorted_fitness_tuple, k=8):
     # Sort the selected individuals by fitness (descending order) to choose the best one
     winner = sorted(tournament_contestants, key=lambda x: x[1], reverse=True)[0]
     return winner
+
 
 def crossover(parents, crossover_probability=0.7, mutation_rate=0.2):
     """
@@ -123,15 +129,19 @@ def crossover(parents, crossover_probability=0.7, mutation_rate=0.2):
 
     return offspring1, offspring2
 
-def mutate(genome, mutation_rate):
+
+def mutate(genome, mutation_rate, sigma=0.5, mutation_percentage=0.1, mutation_step=0.05):
     """
-    Perform scramble mutation on the genome.
-    A subset of the genome is randomly selected and its elements are shuffled.
-    mutation_rate: Probability of selecting a portion of the genome to scramble.
+    Perform mutation on the genome.
+    A subset of the genome is either scrambled, mutated using Gaussian mutation,
+    or mutated using box mutation. The mutation function is randomly chosen from a list.
+
+    mutation_rate: Probability of selecting a portion of the genome to mutate.
+    sigma: Standard deviation for the normal distribution used in the mutation.
+    mutation_percentage: The fraction of the genome to undergo mutation.
+    mutation_step: Maximum step size (range) for box mutation.
     """
-    genome_length = len(genome)
-    # Determine if mutation should happen based on mutation rate
-    if np.random.rand() < mutation_rate:
+    def scramble_mutation():
         # Select two random points in the genome to define the scramble range
         start_idx = np.random.randint(0, genome_length)
         end_idx = np.random.randint(start_idx, genome_length)
@@ -140,6 +150,30 @@ def mutate(genome, mutation_rate):
         np.random.shuffle(subset_to_scramble)
         # Replace the selected range with the shuffled version
         genome[start_idx:end_idx] = subset_to_scramble
+
+    def gaussian_mutation():
+        num_mutations = int(mutation_percentage * genome_length)
+        indices_to_mutate = np.random.choice(genome_length, num_mutations, replace=False)
+        for idx in indices_to_mutate:
+            random_value = np.random.normal(0, sigma)
+            genome[idx] += random_value
+
+    def box_mutation():
+        # Apply box mutation (small perturbation)
+        num_mutations = int(mutation_percentage * genome_length)
+        indices_to_mutate = np.random.choice(genome_length, num_mutations, replace=False)
+        for idx in indices_to_mutate:
+            # Generate a small random change within [-mutation_step, mutation_step]
+            random_step = np.random.uniform(-mutation_step, mutation_step)
+            genome[idx] += random_step
+    genome_length = len(genome)
+
+    application_list = [scramble_mutation, gaussian_mutation, box_mutation]
+
+    if np.random.rand() < mutation_rate:
+        # Randomly pick a mutation method from the list and apply it
+        chosen_mutation = random.choice(application_list)
+        chosen_mutation()  # Apply the selected mutation function
     return genome
 
 
@@ -169,6 +203,7 @@ def calculate_selection_probabilities(sorted_parents_with_fitness):
     ]
 
     return parents_with_probabilities
+
 
 def sample_parents_for_crossover(parents_with_probabilities, num_children):
     """
@@ -235,6 +270,7 @@ def save_genomes_to_file(parents, generation, experiment_name):
             genome_str = ' '.join(map(str, genome))
             f.write(f"{genome_str} {fitness}\n")  # Include fitness value in the file for reference
     print(f"Saved parents to {file_path}")
+
 
 # Record the start time
 start_time = time.time()
