@@ -315,7 +315,7 @@ for generation in range(number_of_gen):
     num_children = len(parents)  # Ensure the number of children matches the number of pairs
 
     # Sample parents and form pairs
-    parent_pairs = sample_parents_for_crossover(parents_with_probabilities, num_children)
+    parent_pairs = sample_parents_for_crossover(parents, num_children)
 
     # Apply crossover to each pair and generate offspring
     offspring = []
