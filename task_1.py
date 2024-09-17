@@ -90,14 +90,11 @@ def k_member_tournament(sorted_fitness_tuple, k=8):
     winner = sorted(tournament_contestants, key=lambda x: x[1], reverse=True)[0]
     return winner
 
-
-def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.2):
+def crossover(parents, crossover_probability=0.7, mutation_rate=0.2):
     """
-    Perform N-point crossover between two parents with a certain probability.
+    Perform one-point crossover between two parents with a certain probability.
     If no crossover happens, the parents are passed directly as offspring.
-
     parents: A list or tuple of two genomes (numpy arrays).
-    N: The number of crossover points.
     crossover_probability: The probability of performing crossover.
     mutation_rate: Probability of mutating each gene in the offspring.
     """
@@ -110,21 +107,11 @@ def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.2):
 
     # Step 1: Check if crossover should happen based on the crossover_probability
     if np.random.rand() < crossover_probability:
-        # Perform N-point crossover
-        crossover_points = np.sort(np.random.choice(range(1, genome_length), N, replace=False))
-
-        # Start with copies of the parents
-        offspring1 = np.copy(parent1)
-        offspring2 = np.copy(parent2)
-
-        # Alternate segments between parents at the crossover points
-        for i in range(len(crossover_points)):
-            if i % 2 == 0:
-                # Swap the segments between parents
-                offspring1[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None] = \
-                    parent2[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None]
-                offspring2[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None] = \
-                    parent1[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None]
+        # Perform one-point crossover
+        crossover_point = np.random.randint(1, genome_length)  # Avoid 0 as it would result in identical offspring
+        # Create offspring by combining segments of the parents
+        offspring1 = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
+        offspring2 = np.concatenate((parent2[:crossover_point], parent1[crossover_point:]))
     else:
         # No crossover: Offspring are just clones of the parents
         offspring1 = np.copy(parent1)
@@ -278,11 +265,11 @@ for generation in range(number_of_gen):
     # Save fitness statistics for this generation
     save_fitness_statistics(generation, population_fitness, experiment_name)
 
+    # Calculate selection probabilities
+    parents_with_probabilities = calculate_selection_probabilities(sorted_population_with_fitness)
+
     # Select parents for the next generation
     parents = parent_selection(sorted_population_with_fitness, num_elite=10, k=8)
-
-    # Calculate selection probabilities
-    parents_with_probabilities = calculate_selection_probabilities(parents)
 
     # Number of children to create (should be the same as the number of parent pairs)
     num_children = len(parents)  # Ensure the number of children matches the number of pairs
