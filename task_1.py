@@ -5,41 +5,6 @@ from evoman.controller import Controller
 import random
 import time
 
-# Parameters
-number_of_hidden_neurons = 10
-population_size_per_gen = 100
-number_of_gen = 50
-mutation_chance = 0.1
-experiment_name = 'test_1_100pop_30gen_enemy3'
-input_size = 20  # Hardcoded number of sensors
-
-# choose this for not using visuals and thus making experiments faster
-headless = True
-if headless:
-    os.environ["SDL_VIDEODRIVER"] = "dummy"
-
-# Create experiment directory if it doesn't exist
-if not os.path.exists(experiment_name):
-    os.makedirs(experiment_name)
-
-# Initialize a neural controller
-neural_controller = Controller(input_size, number_of_hidden_neurons)
-
-# Initialize the environment with the hardcoded controller
-env = Environment(
-    experiment_name=experiment_name,
-    playermode="ai",
-    player_controller=neural_controller,  # Pass the controller directly
-    speed="fastest",
-    enemymode="static",
-    level=2,
-    visuals=True,
-    enemies=[3]
-)
-
-# Calculate genome size for the given controller
-genome_size = neural_controller.genome_size()
-
 # Function to create a random genome (weights)
 def create_random_genome(genome_size):
     return np.random.uniform(-1, 1, genome_size)
@@ -279,6 +244,43 @@ def save_genomes_to_file(parents, generation, experiment_name):
 # Record the start time
 start_time = time.time()
 
+
+# Parameters
+number_of_hidden_neurons = 10
+population_size_per_gen = 100
+number_of_gen = 50
+mutation_chance = 0.1
+experiment_name = 'test_x_100pop_30gen_enemy3'
+input_size = 20  # Hardcoded number of sensors
+
+# choose this for not using visuals and thus making experiments faster
+headless = True
+if headless:
+    os.environ["SDL_VIDEODRIVER"] = "dummy"
+
+# Create experiment directory if it doesn't exist
+if not os.path.exists(experiment_name):
+    os.makedirs(experiment_name)
+
+# Initialize a neural controller
+neural_controller = Controller(input_size, number_of_hidden_neurons)
+
+# Initialize the environment with the hardcoded controller
+env = Environment(
+    experiment_name=experiment_name,
+    playermode="ai",
+    player_controller=neural_controller,  # Pass the controller directly
+    speed="fastest",
+    enemymode="static",
+    level=2,
+    visuals=True,
+    enemies=[3]
+)
+
+# Calculate genome size for the given controller
+genome_size = neural_controller.genome_size()
+
+
 # Initialize the population
 population = [create_random_genome(genome_size) for _ in range(population_size_per_gen)]
 
@@ -312,10 +314,10 @@ for generation in range(number_of_gen):
     parents_with_probabilities = calculate_selection_probabilities(parents)
 
     # Number of children to create (should be the same as the number of parent pairs)
-    num_children = len(parents)  # Ensure the number of children matches the number of pairs
+    num_children = len(parents)
 
     # Sample parents and form pairs
-    parent_pairs = sample_parents_for_crossover(parents, num_children)
+    parent_pairs = sample_parents_for_crossover(parents_with_probabilities, num_children)
 
     # Apply crossover to each pair and generate offspring
     offspring = []
