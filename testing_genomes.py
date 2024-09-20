@@ -28,7 +28,7 @@ env_test = Environment(
     enemymode="static",
     level=2,
     visuals=True,
-    enemies=[2]
+    enemies=[3]
 )
 
 def load_genomes_from_file(file_path):

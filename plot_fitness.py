@@ -8,6 +8,7 @@ directory_path = 'test_1_100pop_30gen_enemy3/'
 generations = []
 mean_fitness_values = []
 std_dev_values = []
+highest_fitness_values = []
 
 # Loop through all files in the directory that match the pattern
 for file_name in os.listdir(directory_path):
@@ -28,6 +29,7 @@ for file_name in os.listdir(directory_path):
 
             # Append the data to lists
             generations.append(generation_num)
+            highest_fitness_values.append(highest_fitness)
             mean_fitness_values.append(mean_fitness)
             std_dev_values.append(std_dev)
 
@@ -40,7 +42,10 @@ import numpy as np
 
 mean_fitness_values = np.array(mean_fitness_values)
 std_dev_values = np.array(std_dev_values)
-print(mean_fitness_values)
+
+print(sum(mean_fitness_values)/len(mean_fitness_values))
+print(max(highest_fitness_values))
+print(sum(std_dev_values)/len(std_dev_values))
 
 # Plotting the data
 plt.figure(figsize=(10, 6))

@@ -97,7 +97,7 @@ def k_member_tournament(sorted_fitness_tuple, k):
     return winner
 
 
-def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.2):
+def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.1):
     """
     Perform N-point crossover between two parents with a certain probability.
     If no crossover happens, the parents are passed directly as offspring.
