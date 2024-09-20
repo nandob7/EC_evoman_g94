@@ -35,7 +35,7 @@ env = Environment(
     enemymode="static",
     level=2,
     visuals=True,
-    enemies=[2]
+    enemies=[3]
 )
 
 # Calculate genome size for the given controller
