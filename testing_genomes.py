@@ -28,7 +28,7 @@ env_test = Environment(
     enemymode="static",
     level=2,
     visuals=True,
-    enemies=[3]
+    enemies=[2]
 )
 
 def load_genomes_from_file(file_path):
@@ -45,7 +45,7 @@ def load_genomes_from_file(file_path):
     return genomes
 
 
-file_path = 'test_1_100pop_30gen_enemy3/parents_generation_21.txt'
+file_path = 'test_1_100pop_30gen_enemy3/parents_generation_15.txt'
 genomes=load_genomes_from_file(file_path)
 
 best_genome = genomes[0]

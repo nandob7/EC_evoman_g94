@@ -40,6 +40,7 @@ import numpy as np
 
 mean_fitness_values = np.array(mean_fitness_values)
 std_dev_values = np.array(std_dev_values)
+print(mean_fitness_values)
 
 # Plotting the data
 plt.figure(figsize=(10, 6))
