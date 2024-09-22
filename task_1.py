@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import csv
 from evoman.environment import Environment
 from evoman.controller import Controller
 import random
@@ -41,9 +42,11 @@ env = Environment(
 # Calculate genome size for the given controller
 genome_size = neural_controller.genome_size()
 
+
 # Function to create a random genome (weights)
 def create_random_genome(genome_size):
     return np.random.uniform(-1, 1, genome_size)
+
 
 # Function to evaluate the fitness of a controller with a given genome
 def evaluate_genome(genome):
@@ -53,6 +56,7 @@ def evaluate_genome(genome):
     fitness, player_life, enemy_life, play_time = env.play(genome)
     return fitness, player_life, enemy_life
 
+
 def sort_by_fitness(parents_with_fitness):
     """
     Sort the parents based on their fitness values in descending order.
@@ -60,6 +64,7 @@ def sort_by_fitness(parents_with_fitness):
     Returns: A sorted list of (genome, fitness) tuples, with the highest fitness first.
     """
     return sorted(parents_with_fitness, key=lambda x: x[1], reverse=True)
+
 
 def parent_selection(sorted_population_with_fitness, num_elite, k):
     """
@@ -80,6 +85,7 @@ def parent_selection(sorted_population_with_fitness, num_elite, k):
     # Combine elite individuals and tournament-selected offspring
     parents = elite + tournament_offspring
     return parents
+
 
 def k_member_tournament(sorted_fitness_tuple, k):
     """
@@ -142,6 +148,7 @@ def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.1):
 
     return offspring1, offspring2
 
+
 def mutate(genome, mutation_rate, sigma=0.5, mutation_percentage=0.1, mutation_step=0.05):
     """
     Perform mutation on the genome.
@@ -153,6 +160,7 @@ def mutate(genome, mutation_rate, sigma=0.5, mutation_percentage=0.1, mutation_s
     mutation_percentage: The fraction of the genome to undergo mutation.
     mutation_step: Maximum step size (range) for box mutation.
     """
+
     def scramble_mutation():
         # Select two random points in the genome to define the scramble range
         start_idx = np.random.randint(0, genome_length)
@@ -178,6 +186,7 @@ def mutate(genome, mutation_rate, sigma=0.5, mutation_percentage=0.1, mutation_s
             # Generate a small random change within [-mutation_step, mutation_step]
             random_step = np.random.uniform(-mutation_step, mutation_step)
             genome[idx] += random_step
+
     genome_length = len(genome)
 
     application_list = [scramble_mutation, gaussian_mutation, box_mutation]
@@ -216,6 +225,7 @@ def calculate_selection_probabilities(sorted_parents_with_fitness):
 
     return parents_with_probabilities
 
+
 def sample_parents_for_crossover(parents_with_probabilities, num_children):
     """
     Sample parents based on their selection probabilities to form couples for crossover.
@@ -243,69 +253,6 @@ def sample_parents_for_crossover(parents_with_probabilities, num_children):
     return parent_pairs
 
 
-def save_fitness_statistics(generation, population_fitness, experiment_name):
-    """
-    Save the highest fitness, mean fitness, and standard deviation of fitness for a generation.
-    generation: The current generation number.
-    population_fitness: A list of fitness values for the population.
-    experiment_name: The directory where the file should be saved.
-    """
-    # Calculate statistics
-    highest_fitness = np.max(population_fitness)
-    mean_fitness = np.mean(population_fitness)
-    std_dev_fitness = np.std(population_fitness)
-
-    # Define file path
-    stats_file_path = os.path.join(experiment_name, f"fitness_stats_generation_{generation + 1}.txt")
-
-    # Save statistics to the file
-    with open(stats_file_path, 'w') as f:
-        f.write(f"Generation {generation + 1}\n")
-        f.write(f"Highest fitness: {highest_fitness}\n")
-        f.write(f"Mean fitness: {mean_fitness}\n")
-        f.write(f"Standard deviation: {std_dev_fitness}\n")
-
-    print(f"Saved fitness statistics to {stats_file_path}")
-
-def save_wins(generation, player_wins, enemy_wins, experiment_name):
-    """
-    Save the highest fitness, mean fitness, and standard deviation of fitness for a generation.
-    generation: The current generation number.
-    population_fitness: A list of fitness values for the population.
-    experiment_name: The directory where the file should be saved.
-    """
-    # Define file path
-    stats_file_path = os.path.join(experiment_name, f"winner_stats_generation_{generation + 1}.txt")
-
-    # Save statistics to the file
-    with open(stats_file_path, 'w') as f:
-        f.write(f"Generation {generation + 1}\n")
-        f.write(f"Player wins: {player_wins}\n")
-        f.write(f"Enemy wins: {enemy_wins}\n")
-
-    print(f"Saved winner statistics to {stats_file_path}")
-
-def save_energy(generation, player_energy, enemy_energy, experiment_name):
-    """
-    Save the highest fitness, mean fitness, and standard deviation of fitness for a generation.
-    generation: The current generation number.
-    population_fitness: A list of fitness values for the population.
-    experiment_name: The directory where the file should be saved.
-    """
-    mean_player_energy = np.mean(player_energy)
-    mean_enemy_energy = np.mean(enemy_energy)
-
-    # Define file path
-    stats_file_path = os.path.join(experiment_name, f"energy_stats_generation_{generation + 1}.txt")
-
-    # Save statistics to the file
-    with open(stats_file_path, 'w') as f:
-        f.write(f"Generation {generation + 1}\n")
-        f.write(f"Player energy: {mean_player_energy}\n")
-        f.write(f"Enemy energy: {mean_enemy_energy}\n")
-
-    print(f"Saved energy statistics to {stats_file_path}")
-
 def save_genomes_to_file(parents, generation, experiment_name):
     """
     Save the top parents to a .txt file for a given generation.
@@ -319,6 +266,53 @@ def save_genomes_to_file(parents, generation, experiment_name):
             genome_str = ' '.join(map(str, genome))
             f.write(f"{genome_str} {fitness}\n")  # Include fitness value in the file for reference
     print(f"Saved parents to {file_path}")
+
+
+# Initialize CSV if it doesn't exist yet
+def initialize_csv(file_path):
+    if not os.path.exists(file_path):
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            # Write the header row
+            writer.writerow([
+                "Generation",
+                "Highest Fitness", "Mean Fitness", "Std Dev Fitness",
+                "Player Wins", "Enemy Wins",
+                "Mean Player Energy", "Mean Enemy Energy"
+            ])
+
+
+def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
+                        experiment_name):
+    """
+    Saves all statistics into a single CSV file.
+    """
+    file_path = os.path.join(experiment_name, "all_statistics.csv")
+
+    # Initialize CSV if needed
+    initialize_csv(file_path)
+
+    # Calculate statistics
+    highest_fitness = np.max(population_fitness)
+    mean_fitness = np.mean(population_fitness)
+    std_dev_fitness = np.std(population_fitness)
+    mean_player_energy = np.mean(player_energy)
+    mean_enemy_energy = np.mean(enemy_energy)
+
+    fitness_stats = [highest_fitness, mean_fitness, std_dev_fitness]
+    win_stats = [player_wins, enemy_wins]
+    energy_stats = [mean_player_energy, mean_enemy_energy]
+
+    # Combine everything into a single row
+    combined_stats = [generation + 1] + fitness_stats + win_stats + energy_stats
+
+    # Append data to the CSV
+    with open(file_path, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(combined_stats)
+
+    print(f"Saved statistics for generation {generation + 1} to {file_path}")
+
 
 # Record the start time
 start_time = time.time()
@@ -349,24 +343,21 @@ for generation in range(number_of_gen):
             enemy_wins += 1
         elif player_life > enemy_life:
             player_wins += 1
-        print(f"Evaluated {i + 1} genomes")
+        # print(f"Evaluated {i + 1} genomes")
 
     # Create a list of tuples (genome, player energy, enemy energy)
     population_with_energy = list(zip(population, player_energy, enemy_energy))
     # Sort the tuples based on the fitness (second element of the tuple)
     sorted_population_with_energy = sort_by_fitness(population_with_energy)
-    # Save fitness statistics for this generation
-    save_energy(generation, player_energy, enemy_energy, experiment_name)
 
     # Create a list of tuples (genome, fitness)
     population_with_fitness = list(zip(population, population_fitness))
     # Sort the tuples based on the fitness (second element of the tuple)
     sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
-    # Save fitness statistics for this generation
-    save_fitness_statistics(generation, population_fitness, experiment_name)
 
-    # Save winner statistics for this generation
-    save_wins(generation, player_wins, enemy_wins, experiment_name)
+    # Save generation statistics
+    save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
+                        experiment_name)
 
     # Select parents for the next generation
     parents = parent_selection(sorted_population_with_fitness, num_elite=10, k=k_members)
