@@ -54,7 +54,7 @@ def evaluate_genome(genome):
     neural_controller.set(genome, input_size)
     # Play the environment using this controller and get the fitness score
     fitness, player_life, enemy_life, play_time = env.play(genome)
-    return fitness, player_life, enemy_life
+    return fitness, player_life, enemy_life, play_time
 
 
 def sort_by_fitness(parents_with_fitness):
@@ -268,29 +268,21 @@ def save_genomes_to_file(parents, generation, experiment_name):
     print(f"Saved parents to {file_path}")
 
 
-# Initialize CSV if it doesn't exist yet
-def initialize_csv(file_path):
+def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy, play_times, experiment_name):
+    """
+    Save all relevant statistics (fitness, wins, energy, play time) for a generation into a CSV file.
+    play_times: List of play times for each individual in the population.
+    """
+    # Define the file path
+    file_path = os.path.join(experiment_name, "all_statistics.csv")
+
+    # Check if the file exists, if not, initialize with headers
     if not os.path.exists(file_path):
         with open(file_path, 'w', newline='') as f:
             writer = csv.writer(f)
-            # Write the header row
-            writer.writerow([
-                "Generation",
-                "Highest Fitness", "Mean Fitness", "Std Dev Fitness",
-                "Player Wins", "Enemy Wins",
-                "Mean Player Energy", "Mean Enemy Energy"
-            ])
-
-
-def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
-                        experiment_name):
-    """
-    Saves all statistics into a single CSV file.
-    """
-    file_path = os.path.join(experiment_name, "all_statistics.csv")
-
-    # Initialize CSV if needed
-    initialize_csv(file_path)
+            writer.writerow(["Generation", "Highest Fitness", "Mean Fitness", "Std Dev Fitness",
+                             "Player Wins", "Enemy Wins", "Mean Player Energy", "Mean Enemy Energy",
+                             "Mean Play Time", "Min Play Time", "Max Play Time"])
 
     # Calculate statistics
     highest_fitness = np.max(population_fitness)
@@ -298,13 +290,17 @@ def save_all_statistics(generation, population_fitness, player_wins, enemy_wins,
     std_dev_fitness = np.std(population_fitness)
     mean_player_energy = np.mean(player_energy)
     mean_enemy_energy = np.mean(enemy_energy)
+    mean_play_time = np.mean(play_times)
+    min_play_time = np.min(play_times)
+    max_play_time = np.max(play_times)
 
     fitness_stats = [highest_fitness, mean_fitness, std_dev_fitness]
     win_stats = [player_wins, enemy_wins]
     energy_stats = [mean_player_energy, mean_enemy_energy]
+    time_stats = [mean_play_time, min_play_time, max_play_time]
 
     # Combine everything into a single row
-    combined_stats = [generation + 1] + fitness_stats + win_stats + energy_stats
+    combined_stats = [generation + 1] + fitness_stats + win_stats + energy_stats +  time_stats
 
     # Append data to the CSV
     with open(file_path, 'a', newline='') as f:
@@ -333,11 +329,13 @@ for generation in range(number_of_gen):
     enemy_wins = 0
     player_energy = []
     enemy_energy = []
+    play_times = []
     for i, genome in enumerate(population):
-        fitness, player_life, enemy_life = evaluate_genome(genome)
+        fitness, player_life, enemy_life, play_time = evaluate_genome(genome)
         population_fitness.append(fitness)
         player_energy.append(player_life)
         enemy_energy.append(enemy_life)
+        play_times.append(play_time)
 
         if player_life < enemy_life:
             enemy_wins += 1
@@ -345,10 +343,10 @@ for generation in range(number_of_gen):
             player_wins += 1
         # print(f"Evaluated {i + 1} genomes")
 
-    # Create a list of tuples (genome, player energy, enemy energy)
-    population_with_energy = list(zip(population, player_energy, enemy_energy))
-    # Sort the tuples based on the fitness (second element of the tuple)
-    sorted_population_with_energy = sort_by_fitness(population_with_energy)
+    # # Create a list of tuples (genome, player energy, enemy energy)
+    # population_with_energy = list(zip(population, player_energy, enemy_energy))
+    # # Sort the tuples based on the fitness (second element of the tuple)
+    # sorted_population_with_energy = sort_by_fitness(population_with_energy)
 
     # Create a list of tuples (genome, fitness)
     population_with_fitness = list(zip(population, population_fitness))
@@ -356,7 +354,7 @@ for generation in range(number_of_gen):
     sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
 
     # Save generation statistics
-    save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
+    save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy, play_times,
                         experiment_name)
 
     # Select parents for the next generation
