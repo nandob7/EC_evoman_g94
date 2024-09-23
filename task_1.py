@@ -256,26 +256,38 @@ def sample_parents_for_crossover(parents_with_probabilities, num_children):
     return parent_pairs
 
 
-def save_genomes_to_file(parents, generation, experiment_name):
+def save_genomes_to_csv(parents, generation, experiment_name, csv_file_name='all_parents.csv'):
     """
-    Save the top parents to a .txt file for a given generation.
-    parents: The current parents (list of (genome, fitness) tuples).
-    generation: The current generation number.
-    experiment_name: The directory where the file should be saved.
+    Save the top parents to a .csv file for a given generation.
+        parents: List of (genome, fitness) tuples representing the current parents.
+        generation: The current generation number.
+        experiment_name: Directory where the CSV file should be saved.
+        csv_file_name: Name of the CSV file where the parents will be logged (default is 'best_parents.csv').
     """
-    file_path = os.path.join(experiment_name, f"parents_generation_{generation + 1}.txt")
-    with open(file_path, 'w') as f:
+
+    # Path to the CSV file
+    csv_file_path = os.path.join(experiment_name, csv_file_name)
+
+    # Open the CSV file in append mode
+    with open(csv_file_path, 'a', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+
+        # Check if the file is empty (add headers if empty)
+        if csvfile.tell() == 0:
+            csvwriter.writerow(['Generation', 'Genome', 'Fitness'])
+
+        # Write each parent's genome and fitness to the CSV file
         for genome, fitness in parents:
-            genome_str = ' '.join(map(str, genome))
-            f.write(f"{genome_str} {fitness}\n")  # Include fitness value in the file for reference
-    print(f"Saved parents to {file_path}")
+            genome_str = ' '.join(map(str, genome))  # Convert the genome list to a string
+            csvwriter.writerow([generation + 1, genome_str, fitness])
+
+    print(f"Saved parents to {csv_file_path}")
 
 
 def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
                         play_times, experiment_name):
     """
     Save all relevant statistics (fitness, wins, energy, play time) for a generation into a CSV file.
-    play_times: List of play times for each individual in the population.
     """
     # Define the file path
     file_path = os.path.join(experiment_name, "all_statistics.csv")
@@ -312,9 +324,6 @@ def save_all_statistics(generation, population_fitness, player_wins, enemy_wins,
         writer.writerow(combined_stats)
 
     print(f"Saved statistics for generation {generation + 1} to {file_path}")
-
-
-import os
 
 
 def save_experiment_parameters():
@@ -418,7 +427,7 @@ for generation in range(number_of_gen):
     population = offspring[:population_size_per_gen]
 
     # Save the top parents (not offspring) of the current generation to a file
-    save_genomes_to_file(sorted_population_with_fitness, generation, experiment_name)
+    save_genomes_to_csv(sorted_population_with_fitness, generation, experiment_name)
 
     # You may want to save or log the best genome of this generation
     best_genome = sorted_population_with_fitness[0][0]
