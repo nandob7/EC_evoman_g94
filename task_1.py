@@ -5,6 +5,7 @@ from evoman.environment import Environment
 from evoman.controller import Controller
 import random
 import time
+import inspect
 
 # Parameters
 number_of_hidden_neurons = 10
@@ -14,9 +15,10 @@ crossover_chance = 0.7
 n_crossover_points = 2
 mutation_chance = 0.15
 num_elite = 10
-experiment_name = 'test_1_100pop_30gen_enemy3'
+experiment_name = 'test_7_100pop_30gen_enemy3'
 input_size = 20  # Hardcoded number of sensors
-k_members = 3
+k_members = 5
+custom_fitness = False
 
 # choose this for not using visuals and thus making experiments faster
 headless = True
@@ -51,12 +53,21 @@ def create_random_genome(genome_size):
     return np.random.uniform(-1, 1, genome_size)
 
 
+# Function to define and calculate custom fitness function
+def calc_cust_fitness(player_life, enemy_life, time):
+    return (0.7 * (100 - enemy_life)) + (0.3 * player_life if player_life > 50 else 0.15 * player_life) - np.log(time)
+
+
 # Function to evaluate the fitness of a controller with a given genome
 def evaluate_genome(genome):
     # Set the genome for the neural controller
     neural_controller.set(genome, input_size)
     # Play the environment using this controller and get the fitness score
     fitness, player_life, enemy_life, play_time = env.play(genome)
+
+    if custom_fitness:
+        fitness = calc_cust_fitness(player_life, enemy_life, play_time)
+
     return fitness, player_life, enemy_life, play_time
 
 
@@ -348,6 +359,13 @@ def save_experiment_parameters():
         f.write(f"Mutation Chance: {mutation_chance}\n")
         f.write(f"Number of Elite Individuals: {num_elite}\n")
         f.write(f"Tournament Selection K-Members: {k_members}\n")
+
+        # Get the source code of the fitness function
+        if custom_fitness:
+            fitness_expression = inspect.getsource(calc_cust_fitness).strip()
+            f.write(f"Fitness Calculation Expression:\n{fitness_expression}\n")
+        else:
+            f.write(f"Fitness Calculation Expression:\nDefault\n")
         f.write("=====================\n")
 
     print(f"Experiment parameters saved to {log_file_path}")
