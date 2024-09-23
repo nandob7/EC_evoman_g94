@@ -9,8 +9,11 @@ import time
 # Parameters
 number_of_hidden_neurons = 10
 population_size_per_gen = 100
-number_of_gen = 15
-mutation_chance = 0.1
+number_of_gen = 30
+crossover_chance = 0.7
+n_crossover_points = 2
+mutation_chance = 0.15
+num_elite = 10
 experiment_name = 'test_1_100pop_30gen_enemy3'
 input_size = 20  # Hardcoded number of sensors
 k_members = 3
@@ -103,7 +106,7 @@ def k_member_tournament(sorted_fitness_tuple, k):
     return winner
 
 
-def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.1):
+def crossover(parents, N, crossover_probability, mutation_rate):
     """
     Perform N-point crossover between two parents with a certain probability.
     If no crossover happens, the parents are passed directly as offspring.
@@ -268,7 +271,8 @@ def save_genomes_to_file(parents, generation, experiment_name):
     print(f"Saved parents to {file_path}")
 
 
-def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy, play_times, experiment_name):
+def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
+                        play_times, experiment_name):
     """
     Save all relevant statistics (fitness, wins, energy, play time) for a generation into a CSV file.
     play_times: List of play times for each individual in the population.
@@ -300,7 +304,7 @@ def save_all_statistics(generation, population_fitness, player_wins, enemy_wins,
     time_stats = [mean_play_time, min_play_time, max_play_time]
 
     # Combine everything into a single row
-    combined_stats = [generation + 1] + fitness_stats + win_stats + energy_stats +  time_stats
+    combined_stats = [generation + 1] + fitness_stats + win_stats + energy_stats + time_stats
 
     # Append data to the CSV
     with open(file_path, 'a', newline='') as f:
@@ -310,8 +314,41 @@ def save_all_statistics(generation, population_fitness, player_wins, enemy_wins,
     print(f"Saved statistics for generation {generation + 1} to {file_path}")
 
 
+import os
+
+
+def save_experiment_parameters():
+    """
+    Saves the experiment parameters to a log file.
+    """
+    log_file_path = os.path.join(experiment_name, 'experiment_log.txt')
+
+    # Create directory if it doesn't exist
+    os.makedirs(experiment_name, exist_ok=True)
+
+    # Open the log file and write the parameters
+    with open(log_file_path, 'w') as f:
+        f.write("Experiment Parameters\n")
+        f.write("=====================\n")
+        f.write(f"Experiment Name: {experiment_name}\n")
+        f.write(f"Number of Hidden Neurons: {number_of_hidden_neurons}\n")
+        f.write(f"Population Size per Generation: {population_size_per_gen}\n")
+        f.write(f"Number of Generations: {number_of_gen}\n")
+        f.write(f"Crossover Chance: {crossover_chance}\n")
+        f.write(f"Number of Crossover Points: {n_crossover_points}\n")
+        f.write(f"Mutation Chance: {mutation_chance}\n")
+        f.write(f"Number of Elite Individuals: {num_elite}\n")
+        f.write(f"Tournament Selection K-Members: {k_members}\n")
+        f.write("=====================\n")
+
+    print(f"Experiment parameters saved to {log_file_path}")
+
+
 # Record the start time
 start_time = time.time()
+
+# Log experiment parameter setup
+save_experiment_parameters()
 
 # Initialize the population
 population = [create_random_genome(genome_size) for _ in range(population_size_per_gen)]
@@ -354,11 +391,12 @@ for generation in range(number_of_gen):
     sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
 
     # Save generation statistics
-    save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy, play_times,
+    save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
+                        play_times,
                         experiment_name)
 
     # Select parents for the next generation
-    parents = parent_selection(sorted_population_with_fitness, num_elite=10, k=k_members)
+    parents = parent_selection(sorted_population_with_fitness, num_elite=num_elite, k=k_members)
 
     # Calculate selection probabilities
     parents_with_probabilities = calculate_selection_probabilities(parents)
@@ -372,7 +410,8 @@ for generation in range(number_of_gen):
     # Apply crossover to each pair and generate offspring
     offspring = []
     for parent1, parent2 in parent_pairs:
-        offspring1, offspring2 = crossover((parent1, parent2), crossover_probability=0.7, mutation_rate=mutation_chance)
+        offspring1, offspring2 = crossover((parent1, parent2), n_crossover_points,
+                                           crossover_probability=crossover_chance, mutation_rate=mutation_chance)
         offspring.extend([offspring1, offspring2])
 
     # Ensure the new population size matches the original population size
