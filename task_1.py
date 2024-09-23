@@ -8,11 +8,10 @@ import time
 # Parameters
 number_of_hidden_neurons = 10
 population_size_per_gen = 100
-number_of_gen = 15
+number_of_gen = 50
 mutation_chance = 0.1
 experiment_name = 'test_1_100pop_30gen_enemy3'
 input_size = 20  # Hardcoded number of sensors
-k_members = 3
 
 # choose this for not using visuals and thus making experiments faster
 headless = True
@@ -50,8 +49,8 @@ def evaluate_genome(genome):
     # Set the genome for the neural controller
     neural_controller.set(genome, input_size)
     # Play the environment using this controller and get the fitness score
-    fitness, player_life, enemy_life, play_time = env.play(genome)
-    return fitness, player_life, enemy_life
+    fitness, _, _, _ = env.play(genome)
+    return fitness
 
 def sort_by_fitness(parents_with_fitness):
     """
@@ -61,7 +60,7 @@ def sort_by_fitness(parents_with_fitness):
     """
     return sorted(parents_with_fitness, key=lambda x: x[1], reverse=True)
 
-def parent_selection(sorted_population_with_fitness, num_elite, k):
+def parent_selection(sorted_population_with_fitness, num_elite, k=8):
     """
     This function creates the next generation of genomes.
     - Keeps the top `num_elite` individuals (elitism).
@@ -81,23 +80,18 @@ def parent_selection(sorted_population_with_fitness, num_elite, k):
     parents = elite + tournament_offspring
     return parents
 
-def k_member_tournament(sorted_fitness_tuple, k):
+def k_member_tournament(sorted_fitness_tuple, k=8):
     """
     Perform k-member tournament selection and return the selected individual (genome, fitness).
     """
     # Randomly select k individuals from the population
     tournament_contestants = random.sample(sorted_fitness_tuple, k)
-    fittest_probability = 1
-    if np.random.rand() < fittest_probability:
-        # Sort the selected individuals by fitness (descending order) to choose the best one
-        winner = sorted(tournament_contestants, key=lambda x: x[1], reverse=True)[0]
-    else:
-        winner = random.choice(tournament_contestants)
-
+    # Sort the selected individuals by fitness (descending order) to choose the best one
+    winner = sorted(tournament_contestants, key=lambda x: x[1], reverse=True)[0]
     return winner
 
 
-def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.1):
+def crossover(parents, N=2, crossover_probability=0.7, mutation_rate=0.2):
     """
     Perform N-point crossover between two parents with a certain probability.
     If no crossover happens, the parents are passed directly as offspring.
@@ -267,44 +261,6 @@ def save_fitness_statistics(generation, population_fitness, experiment_name):
 
     print(f"Saved fitness statistics to {stats_file_path}")
 
-def save_wins(generation, player_wins, enemy_wins, experiment_name):
-    """
-    Save the highest fitness, mean fitness, and standard deviation of fitness for a generation.
-    generation: The current generation number.
-    population_fitness: A list of fitness values for the population.
-    experiment_name: The directory where the file should be saved.
-    """
-    # Define file path
-    stats_file_path = os.path.join(experiment_name, f"winner_stats_generation_{generation + 1}.txt")
-
-    # Save statistics to the file
-    with open(stats_file_path, 'w') as f:
-        f.write(f"Generation {generation + 1}\n")
-        f.write(f"Player wins: {player_wins}\n")
-        f.write(f"Enemy wins: {enemy_wins}\n")
-
-    print(f"Saved winner statistics to {stats_file_path}")
-
-def save_energy(generation, player_energy, enemy_energy, experiment_name):
-    """
-    Save the highest fitness, mean fitness, and standard deviation of fitness for a generation.
-    generation: The current generation number.
-    population_fitness: A list of fitness values for the population.
-    experiment_name: The directory where the file should be saved.
-    """
-    mean_player_energy = np.mean(player_energy)
-    mean_enemy_energy = np.mean(enemy_energy)
-
-    # Define file path
-    stats_file_path = os.path.join(experiment_name, f"energy_stats_generation_{generation + 1}.txt")
-
-    # Save statistics to the file
-    with open(stats_file_path, 'w') as f:
-        f.write(f"Generation {generation + 1}\n")
-        f.write(f"Player energy: {mean_player_energy}\n")
-        f.write(f"Enemy energy: {mean_enemy_energy}\n")
-
-    print(f"Saved energy statistics to {stats_file_path}")
 
 def save_genomes_to_file(parents, generation, experiment_name):
     """
@@ -335,41 +291,22 @@ for generation in range(number_of_gen):
 
     # Evaluate fitness for each genome
     population_fitness = []
-    player_wins = 0
-    enemy_wins = 0
-    player_energy = []
-    enemy_energy = []
     for i, genome in enumerate(population):
-        fitness, player_life, enemy_life = evaluate_genome(genome)
+        fitness = evaluate_genome(genome)
         population_fitness.append(fitness)
-        player_energy.append(player_life)
-        enemy_energy.append(enemy_life)
-
-        if player_life < enemy_life:
-            enemy_wins += 1
-        elif player_life > enemy_life:
-            player_wins += 1
         print(f"Evaluated {i + 1} genomes")
-
-    # Create a list of tuples (genome, player energy, enemy energy)
-    population_with_energy = list(zip(population, player_energy, enemy_energy))
-    # Sort the tuples based on the fitness (second element of the tuple)
-    sorted_population_with_energy = sort_by_fitness(population_with_energy)
-    # Save fitness statistics for this generation
-    save_energy(generation, player_energy, enemy_energy, experiment_name)
 
     # Create a list of tuples (genome, fitness)
     population_with_fitness = list(zip(population, population_fitness))
+
     # Sort the tuples based on the fitness (second element of the tuple)
     sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
+
     # Save fitness statistics for this generation
     save_fitness_statistics(generation, population_fitness, experiment_name)
 
-    # Save winner statistics for this generation
-    save_wins(generation, player_wins, enemy_wins, experiment_name)
-
     # Select parents for the next generation
-    parents = parent_selection(sorted_population_with_fitness, num_elite=10, k=k_members)
+    parents = parent_selection(sorted_population_with_fitness, num_elite=10, k=8)
 
     # Calculate selection probabilities
     parents_with_probabilities = calculate_selection_probabilities(parents)
