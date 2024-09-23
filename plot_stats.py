@@ -4,7 +4,7 @@ import csv
 import numpy as np
 
 # Path to the CSV file
-directory = 'test_1_100pop_30gen_enemy3'
+directory = 'test_2_100pop_30gen_enemy3'
 csv_file_path = os.path.join(directory, 'all_statistics.csv')
 
 # Lists to store generation data, fitness, wins, energy, and play times
@@ -65,6 +65,10 @@ mean_enemy_energy_values = np.array(mean_enemy_energy_values)
 mean_play_times = np.array(mean_play_times)
 min_play_times = np.array(min_play_times)
 max_play_times = np.array(max_play_times)
+
+print(f'Mean Fitness: {mean_fitness_values.mean()}')
+print(f'Highest fitness: {highest_fitness_values.max()}')
+print(f'Standard Deviation: {std_dev_values.mean()}')
 
 # Plot Mean Fitness with Standard Deviation
 plt.figure(figsize=(10, 6))
