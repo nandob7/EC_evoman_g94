@@ -1,13 +1,17 @@
 import numpy as np
 import os
 import csv
+
 from evoman.environment import Environment
 from evoman.controller import Controller
 
 # Parameters
+desired_generation = 30
+enemy = 5
 number_of_hidden_neurons = 10
-experiment_name = 'test_1_100pop_30gen_enemy3'
+experiment_name = f'test_4_10_100pop_30gen_enemy{enemy}'
 input_size = 20  # Hardcoded number of sensors
+
 
 # Create experiment directory if it doesn't exist
 if not os.path.exists(experiment_name):
@@ -25,7 +29,7 @@ env_test = Environment(
     enemymode="static",
     level=2,
     visuals=True,
-    enemies=[3]
+    enemies=[enemy]
 )
 
 
@@ -55,18 +59,20 @@ def load_best_genome_from_csv(csv_file_path, generation):
         return None, None
 
 
+def calc_cust_fitness(player_life, enemy_life, time):
+    return (0.8 * (100 - enemy_life)) + (0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(time)
+
+
 # File path to the CSV
 csv_file_path = os.path.join(experiment_name, 'all_parents.csv')
-
-# Input the desired generation number to load the best genome
-desired_generation = 15
 
 # Load the best genome from the specified generation
 best_genome, best_fitness = load_best_genome_from_csv(csv_file_path, desired_generation)
 
 if best_genome is not None:
     # Play the environment using the best genome and display its fitness
-    fitness, _, _, _ = env_test.play(best_genome)
-    print(f"Tested genome from generation {desired_generation}, achieved fitness: {fitness}")
+    fitness, player_life, enemy_life, play_time = env_test.play(best_genome)
+    print(f"Tested genome from generation {desired_generation}, achieved default fitness: {fitness}, custom fitness: "
+          f"{calc_cust_fitness(player_life, enemy_life, play_time)}")
 else:
     print(f"No genome found for generation {desired_generation}")
