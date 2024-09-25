@@ -7,9 +7,8 @@ import random
 import time
 import inspect
 
-for enemy in [2,3,5]:
+for enemy in [2, 3, 5]:
     for i in range(10):
-
         # Parameters
         number_of_hidden_neurons = 10
         population_size_per_gen = 100
@@ -18,7 +17,8 @@ for enemy in [2,3,5]:
         n_crossover_points = 5
         mutation_chance = 0.2
         num_elite = 10
-        experiment_name = f'test_4_{i+1}_100pop_30gen_enemy{enemy}'
+        experiment_name = f'test_4_{i + 1}_100pop_30gen_enemy{enemy}'
+        directory = os.path.join("runs\ea2", experiment_name)
         input_size = 20  # Hardcoded number of sensors
         k_members = 5
         custom_fitness = True
@@ -31,6 +31,9 @@ for enemy in [2,3,5]:
         # Create experiment directory if it doesn't exist
         if not os.path.exists(experiment_name):
             os.makedirs(experiment_name)
+
+        # Create directory if it doesn't exist
+        os.makedirs(directory, exist_ok=True)
 
         # Initialize a neural controller
         neural_controller = Controller(input_size, number_of_hidden_neurons)
@@ -58,7 +61,9 @@ for enemy in [2,3,5]:
 
         # Function to define and calculate custom fitness function
         def calc_cust_fitness(player_life, enemy_life, time):
-            return (0.8 * (100 - enemy_life)) + (0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(time)
+            return (0.8 * (100 - enemy_life)) + (
+                0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(
+                time)
 
 
         # Function to evaluate the fitness of a controller with a given genome
@@ -150,10 +155,14 @@ for enemy in [2,3,5]:
                 for i in range(len(crossover_points)):
                     if i % 2 == 0:
                         # Swap the segments between parents
-                        offspring1[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None] = \
-                            parent2[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None]
-                        offspring2[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None] = \
-                            parent1[crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None]
+                        offspring1[
+                        crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None] = \
+                            parent2[
+                            crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None]
+                        offspring2[
+                        crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None] = \
+                            parent1[
+                            crossover_points[i]:crossover_points[i + 1] if i + 1 < len(crossover_points) else None]
             else:
                 # No crossover: Offspring are just clones of the parents
                 offspring1 = np.copy(parent1)
@@ -271,7 +280,7 @@ for enemy in [2,3,5]:
             return parent_pairs
 
 
-        def save_genomes_to_csv(parents, generation, experiment_name, csv_file_name='all_parents.csv'):
+        def save_genomes_to_csv(parents, generation, csv_file_name='all_parents.csv'):
             """
             Save the top parents to a .csv file for a given generation.
                 parents: List of (genome, fitness) tuples representing the current parents.
@@ -281,7 +290,7 @@ for enemy in [2,3,5]:
             """
 
             # Path to the CSV file
-            csv_file_path = os.path.join(experiment_name, csv_file_name)
+            csv_file_path = os.path.join(directory, csv_file_name)
 
             # Open the CSV file in append mode
             with open(csv_file_path, 'a', newline='') as csvfile:
@@ -300,12 +309,12 @@ for enemy in [2,3,5]:
 
 
         def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
-                                play_times, experiment_name):
+                                play_times):
             """
             Save all relevant statistics (fitness, wins, energy, play time) for a generation into a CSV file.
             """
             # Define the file path
-            file_path = os.path.join(experiment_name, "all_statistics.csv")
+            file_path = os.path.join(directory, "all_statistics.csv")
 
             # Check if the file exists, if not, initialize with headers
             if not os.path.exists(file_path):
@@ -345,10 +354,7 @@ for enemy in [2,3,5]:
             """
             Saves the experiment parameters to a log file.
             """
-            log_file_path = os.path.join(experiment_name, 'experiment_log.txt')
-
-            # Create directory if it doesn't exist
-            os.makedirs(experiment_name, exist_ok=True)
+            log_file_path = os.path.join(directory, 'experiment_log.txt')
 
             # Open the log file and write the parameters
             with open(log_file_path, 'w') as f:
@@ -409,12 +415,6 @@ for enemy in [2,3,5]:
                     enemy_wins += 1
                 elif player_life > enemy_life:
                     player_wins += 1
-                # print(f"Evaluated {i + 1} genomes")
-
-            # # Create a list of tuples (genome, player energy, enemy energy)
-            # population_with_energy = list(zip(population, player_energy, enemy_energy))
-            # # Sort the tuples based on the fitness (second element of the tuple)
-            # sorted_population_with_energy = sort_by_fitness(population_with_energy)
 
             # Create a list of tuples (genome, fitness)
             population_with_fitness = list(zip(population, population_fitness))
@@ -423,8 +423,7 @@ for enemy in [2,3,5]:
 
             # Save generation statistics
             save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
-                                play_times,
-                                experiment_name)
+                                play_times)
 
             # Select parents for the next generation
             parents = parent_selection(sorted_population_with_fitness, num_elite=num_elite, k=k_members)
@@ -442,14 +441,15 @@ for enemy in [2,3,5]:
             offspring = []
             for parent1, parent2 in parent_pairs:
                 offspring1, offspring2 = crossover((parent1, parent2), n_crossover_points,
-                                                   crossover_probability=crossover_chance, mutation_rate=mutation_chance)
+                                                   crossover_probability=crossover_chance,
+                                                   mutation_rate=mutation_chance)
                 offspring.extend([offspring1, offspring2])
 
             # Ensure the new population size matches the original population size
             population = offspring[:population_size_per_gen]
 
             # Save the top parents (not offspring) of the current generation to a file
-            save_genomes_to_csv(sorted_population_with_fitness, generation, experiment_name)
+            save_genomes_to_csv(sorted_population_with_fitness, generation)
 
             # You may want to save or log the best genome of this generation
             best_genome = sorted_population_with_fitness[0][0]
