@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 random_trained = False
-random_tested = False
+random_tested = True
 directory = f'runs/{"random/" if random_trained else ""}'
 csv_path = os.path.join(directory, f'best_genomes_{"random" if random_tested else "fixed"}.csv')
 
@@ -41,5 +41,5 @@ plt.legend(title='EA')
 
 # Save or show the figure
 plt.tight_layout()
-plt.savefig(os.path.join(directory, f'{"r" if random_trained else "f"}trained_{"r" if random_tested else "f"}test_gain_boxplot.png'))
+plt.savefig(os.path.join(directory, f'plots/{"r" if random_trained else "f"}trained_{"r" if random_tested else "f"}test_gain_boxplot.png'))
 plt.show()
