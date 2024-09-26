@@ -6,6 +6,12 @@ import numpy as np
 # Parameters
 n_runs = 10
 n_generations = 30  # Assuming each run has 30 generations
+random_start = True
+directory = f'runs/{"random/" if random_start else ""}'
+
+# Create experiment directory if it doesn't exist
+if not os.path.exists(directory):
+    os.makedirs(directory)
 
 for enemy in [2, 3, 5]:
     # Initialize arrays to store cumulative statistics for both algorithms
@@ -18,8 +24,8 @@ for enemy in [2, 3, 5]:
     for ea in [1, 2]:
         for i in range(10):
             # Path to the CSV file
-            directory = f'runs/ea{ea}/enemy{enemy}/test_4_{i + 1}_100pop_30gen_enemy{enemy}'
-            csv_file_path = os.path.join(directory, 'all_statistics.csv')
+            experiment_dir = os.path.join(directory, f'ea{ea}/enemy{enemy}/test_4_{i + 1}_100pop_30gen_enemy{enemy}')
+            csv_file_path = os.path.join(experiment_dir, 'all_statistics.csv')
 
             # Read the CSV file and extract data
             with open(csv_file_path, 'r') as csvfile:
@@ -88,6 +94,11 @@ for enemy in [2, 3, 5]:
     mean_norm_mean_fitness_algo2 = np.mean(normalized_mean_fitness_algo2, axis=0)
     std_norm_mean_fitness_algo2 = np.std(normalized_mean_fitness_algo2, axis=0)
 
+    # Create experiment directory if it doesn't exist
+    plot_dir = os.path.join(directory, 'plots')
+    if not os.path.exists(plot_dir):
+        os.makedirs(plot_dir)
+
     # Plot Regular Fitness
     plt.figure(figsize=(10, 6))
     plt.title(f'Regular Fitness Comparison Plot: Enemy {enemy}')
@@ -124,7 +135,7 @@ for enemy in [2, 3, 5]:
     plt.xlabel('Generation')
     plt.ylabel('Fitness')
     plt.legend()
-    plt.savefig(f'Plots\enemy{enemy}_regular_fitness_comparison_plot.png')
+    plt.savefig(f'runs/{"random/" if random_start else ""}plots/enemy{enemy}_regular_fitness_comparison_plot.png')
     plt.show()
 
     # Plot Normalized Fitness
@@ -164,5 +175,5 @@ for enemy in [2, 3, 5]:
     plt.xlabel('Generation')
     plt.ylabel('Normalized Fitness')
     plt.legend()
-    plt.savefig(f'Plots\enemy{enemy}_normalized_fitness_comparison_plot.png')
+    plt.savefig(f'runs/{"random/" if random_start else ""}plots/enemy{enemy}_normalized_fitness_comparison_plot.png')
     plt.show()

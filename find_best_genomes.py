@@ -3,11 +3,12 @@ import pandas as pd
 
 # Prepare a list to hold the best genomes
 best_genomes = []
+random_start = True
 
 # Iterate over each evolutionary algorithm (EA) and enemy combination
 for ea in [1, 2]:
     for enemy in [2, 3, 5]:
-        directory = f'runs/ea{ea}/enemy{enemy}'
+        directory = f'runs/{"random/" if random_start else ""}ea{ea}/enemy{enemy}'
         best_fitness = 0
         best_genome = None
         for i in range(10):
@@ -38,7 +39,7 @@ for ea in [1, 2]:
 best_genomes_df = pd.DataFrame(best_genomes)
 
 # Write the DataFrame to a CSV file
-output_csv_path = 'runs/best_genomes.csv'
+output_csv_path = f'runs/{"random/" if random_start else ""}best_genomes.csv'
 best_genomes_df.to_csv(output_csv_path, index=False)
 
 print(f"Best genomes saved to {output_csv_path}")

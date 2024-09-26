@@ -3,11 +3,15 @@ import matplotlib.pyplot as plt
 import csv
 import numpy as np
 
+show_plots = False
+print_fitness_stats = False
+random_start = True
+
 for ea in [1, 2]:
     for enemy in [2, 3, 5]:
         for i in range(10):
             # Path to the CSV file
-            directory = f'runs/ea{ea}/enemy{enemy}/test_4_{i+1}_100pop_30gen_enemy{enemy}'
+            directory = f'runs/{"random/" if random_start else ""}ea{ea}/enemy{enemy}/test_4_{i + 1}_100pop_30gen_enemy{enemy}'
             csv_file_path = os.path.join(directory, 'all_statistics.csv')
 
             # Lists to store generation data, fitness, wins, energy, and play times
@@ -69,9 +73,10 @@ for ea in [1, 2]:
             min_play_times = np.array(min_play_times)
             max_play_times = np.array(max_play_times)
 
-            print(f'Mean Fitness: {mean_fitness_values.mean()}')
-            print(f'Highest fitness: {highest_fitness_values.max()}')
-            print(f'Standard Deviation: {std_dev_values.mean()}')
+            if print_fitness_stats:
+                print(f'Mean Fitness: {mean_fitness_values.mean()}')
+                print(f'Highest fitness: {highest_fitness_values.max()}')
+                print(f'Standard Deviation: {std_dev_values.mean()}')
 
             # Plot Mean Fitness with Standard Deviation
             plt.figure(figsize=(10, 6))
@@ -85,17 +90,19 @@ for ea in [1, 2]:
             # Plot bounds for std deviation (mean ± std_dev)
             upper_bound = mean_fitness_values + std_dev_values
             lower_bound = mean_fitness_values - std_dev_values
-            plt.fill_between(generations, lower_bound, upper_bound, color='lightblue', alpha=0.5, label="Std Dev Bounds")
+            plt.fill_between(generations, lower_bound, upper_bound, color='lightblue', alpha=0.5,
+                             label="Std Dev Bounds")
 
             # Add labels and title
             plt.xlabel('Generation')
             plt.ylabel('Fitness')
             plt.title(f'Fitness Plot: EA {ea}, Enemy {enemy}')
             plt.legend()
-            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i+1}_fitness_plot.png'))
+            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i + 1}_fitness_plot.png'))
 
             # Show the plot
-            # plt.show()
+            if show_plots:
+                plt.show()
 
             # Plot Player Wins vs Enemy Wins over Generations
             plt.figure(figsize=(10, 6))
@@ -107,9 +114,11 @@ for ea in [1, 2]:
             plt.ylabel('Wins')
             plt.title(f'Wins Plot: : EA {ea}, Enemy {enemy}')
             plt.legend()
-            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i+1}_wins_plot.png'))
+            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i + 1}_wins_plot.png'))
 
-            # plt.show()
+            # Show the plot
+            if show_plots:
+                plt.show()
 
             # Plot Mean Energy (Player vs Enemy) over Generations
             plt.figure(figsize=(10, 6))
@@ -121,9 +130,11 @@ for ea in [1, 2]:
             plt.ylabel('Energy')
             plt.title(f'Energy Plot: : EA {ea}, Enemy {enemy}')
             plt.legend()
-            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i+1}_energy_plot.png'))
+            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i + 1}_energy_plot.png'))
 
-            # plt.show()
+            # Show the plot
+            if show_plots:
+                plt.show()
 
             # Plot Mean Play Time with Min and Max Play Times over Generations
             plt.figure(figsize=(10, 6))
@@ -132,13 +143,20 @@ for ea in [1, 2]:
             plt.plot(generations, mean_play_times, label="Mean Play Time", color="purple", marker='o')
 
             # Plot bounds for min and max play time
-            plt.fill_between(generations, min_play_times, max_play_times, color='violet', alpha=0.3, label="Min-Max Play Time Range")
+            plt.fill_between(generations, min_play_times, max_play_times, color='violet', alpha=0.3,
+                             label="Min-Max Play Time Range")
 
             # Add labels and title
             plt.xlabel('Generation')
             plt.ylabel('Play Time (seconds)')
             plt.title('Mean Play Time with Min and Max over Generations')
             plt.legend()
-            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i+1}_play_time_plot.png'))
+            plt.savefig(os.path.join(directory, f'ea{ea}_enemy{enemy}_run{i + 1}_play_time_plot.png'))
 
-            # plt.show()
+            # Show the plot
+            if show_plots:
+                plt.show()
+
+            plt.close('all')
+
+        print(f'Generated plots for ea{ea}, enemy {enemy}')

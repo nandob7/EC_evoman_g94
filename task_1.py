@@ -46,7 +46,7 @@ for params_ea in [params_ea1, params_ea2]:
             random_start = params_ea["random_start"]
 
             n_ea = params_ea["n_ea"]
-            path = f"runs/{'random/'}ea{n_ea}"
+            path = f"runs/{'random/' if random_start else ''}ea{n_ea}"
             directory = os.path.join(path, os.path.join(f'enemy{enemy}', experiment_name))
 
             # choose this for not using visuals and thus making experiments faster

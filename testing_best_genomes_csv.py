@@ -7,9 +7,10 @@ from evoman.controller import Controller
 
 # Parameters
 number_of_hidden_neurons = 10
-csv_path = f'runs/best_genomes.csv'
 input_size = 20  # Hardcoded number of sensors
-random_start = False
+random_trained = True
+csv_path = f'runs/{"random/" if random_trained else ""}best_genomes.csv'
+random_start = True
 
 # Initialize a neural controller
 neural_controller = Controller(input_size, number_of_hidden_neurons)
@@ -54,7 +55,7 @@ for enemy in [2, 3, 5]:
             current_genome['fitness'].item().append(fitness if ea == 1 else calc_cust_fitness(player_life, enemy_life, play_time))
             current_genome['gain'].item().append(player_life - enemy_life)
 
-output_csv_path = f'runs/best_genomes_{"random" if random_start else "fixed"}.csv'
+output_csv_path = f'runs/{"random/" if random_trained else ""}/best_genomes_{"random" if random_start else "fixed"}.csv'
 best_genomes.to_csv(output_csv_path, index=False)
 
 print(f"Best genomes saved to {output_csv_path}")
