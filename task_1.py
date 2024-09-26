@@ -7,6 +7,13 @@ import random
 import time
 import inspect
 
+# Parameters
+number_of_hidden_neurons = 10
+input_size = 20  # Hardcoded number of sensors
+population_size_per_gen = 100
+number_of_gen = 30
+enemies = [2, 3, 5]
+
 params_ea1 = {
     "crossover_chance": 0.7,
     "n_crossover_points": 2,
@@ -371,11 +378,6 @@ def save_experiment_parameters():
 
 # Loop per preset algorithm
 for params_ea in [params_ea1, params_ea2]:
-    # Parameters
-    number_of_hidden_neurons = 10
-    input_size = 20  # Hardcoded number of sensors
-    population_size_per_gen = 100
-    number_of_gen = 30
     crossover_chance = params_ea["crossover_chance"]
     n_crossover_points = params_ea["n_crossover_points"]
     mutation_chance = params_ea["mutation_chance"]
@@ -387,7 +389,7 @@ for params_ea in [params_ea1, params_ea2]:
     path = f"runs/{'random/' if random_start else ''}ea{n_ea}"
 
     # Loop per enemy per EA
-    for enemy in [2, 3, 5]:
+    for enemy in enemies:
 
         # Loop for 10 experiment runs per enemy per EA
         for run in range(10):

@@ -11,6 +11,8 @@ input_size = 20  # Hardcoded number of sensors
 random_trained = True
 csv_path = f'runs/{"random/" if random_trained else ""}best_genomes.csv'
 random_start = True
+eas = [1, 2]
+enemies = [2, 3, 5]
 
 # Initialize a neural controller
 neural_controller = Controller(input_size, number_of_hidden_neurons)
@@ -28,8 +30,8 @@ def calc_cust_fitness(player_life, enemy_life, time):
         time)
 
 
-for enemy in [2, 3, 5]:
-    for ea in [1, 2]:
+for enemy in enemies:
+    for ea in eas:
         current_genome = best_genomes[(best_genomes['ea'] == ea) & (best_genomes['enemy'] == enemy)]
         experiment_name = f'test_4_ea{ea}_e{enemy}'
 

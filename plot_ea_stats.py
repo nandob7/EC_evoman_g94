@@ -5,7 +5,9 @@ import numpy as np
 
 # Parameters
 n_runs = 10
-n_generations = 30  # Assuming each run has 30 generations
+n_generations = 30
+eas = [1, 2]
+enemies = [2, 3, 5]
 random_start = True
 directory = f'runs/{"random/" if random_start else ""}'
 
@@ -13,7 +15,13 @@ directory = f'runs/{"random/" if random_start else ""}'
 if not os.path.exists(directory):
     os.makedirs(directory)
 
-for enemy in [2, 3, 5]:
+
+def compute_mean_stdev(data):
+    return np.mean(data, axis=0), np.std(data, axis=0)
+
+
+# Loop over all enemies
+for enemy in enemies:
     # Initialize arrays to store cumulative statistics for both algorithms
     all_max_fitness_algo1 = np.zeros((n_runs, n_generations))
     all_mean_fitness_algo1 = np.zeros((n_runs, n_generations))
@@ -21,17 +29,14 @@ for enemy in [2, 3, 5]:
     all_max_fitness_algo2 = np.zeros((n_runs, n_generations))
     all_mean_fitness_algo2 = np.zeros((n_runs, n_generations))
 
-    for ea in [1, 2]:
+    for ea in eas:
         for i in range(10):
-            # Path to the CSV file
             experiment_dir = os.path.join(directory, f'ea{ea}/enemy{enemy}/test_4_{i + 1}_100pop_30gen_enemy{enemy}')
             csv_file_path = os.path.join(experiment_dir, 'all_statistics.csv')
 
-            # Read the CSV file and extract data
             with open(csv_file_path, 'r') as csvfile:
                 csvreader = csv.reader(csvfile)
-                # Skip the header
-                next(csvreader)
+                next(csvreader)  # Skip the header
 
                 # Loop through each row in the CSV
                 for row in csvreader:
@@ -56,24 +61,15 @@ for enemy in [2, 3, 5]:
                         all_mean_fitness_algo2[i, generation - 1] = mean_fitness
 
     # Calculate mean and std deviation for both EAs
-    mean_max_fitness_algo1 = np.mean(all_max_fitness_algo1, axis=0)
-    std_max_fitness_algo1 = np.std(all_max_fitness_algo1, axis=0)
+    mean_max_fitness_algo1, std_max_fitness_algo1 = compute_mean_stdev(all_max_fitness_algo1)
+    mean_mean_fitness_algo1, std_mean_fitness_algo1 = compute_mean_stdev(all_mean_fitness_algo1)
 
-    mean_mean_fitness_algo1 = np.mean(all_mean_fitness_algo1, axis=0)
-    std_mean_fitness_algo1 = np.std(all_mean_fitness_algo1, axis=0)
-
-    mean_max_fitness_algo2 = np.mean(all_max_fitness_algo2, axis=0)
-    std_max_fitness_algo2 = np.std(all_max_fitness_algo2, axis=0)
-
-    mean_mean_fitness_algo2 = np.mean(all_mean_fitness_algo2, axis=0)
-    std_mean_fitness_algo2 = np.std(all_mean_fitness_algo2, axis=0)
+    mean_max_fitness_algo2, std_max_fitness_algo2 = compute_mean_stdev(all_max_fitness_algo2)
+    mean_mean_fitness_algo2, std_mean_fitness_algo2 = compute_mean_stdev(all_mean_fitness_algo2)
 
     # Normalize the fitness values
-    max_fitness_algo1 = np.max(all_max_fitness_algo1)
-    min_fitness_algo1 = np.min(all_mean_fitness_algo1)
-    max_fitness_algo2 = np.max(all_max_fitness_algo2)
-    min_fitness_algo2 = np.min(all_mean_fitness_algo2)
-
+    max_fitness_algo1, min_fitness_algo1 = np.max(all_max_fitness_algo1), np.min(all_mean_fitness_algo1)
+    max_fitness_algo2, min_fitness_algo2 = np.max(all_max_fitness_algo2), np.min(all_mean_fitness_algo2)
 
     normalized_max_fitness_algo1 = (all_max_fitness_algo1 - 0) / (100 - 0)
     normalized_mean_fitness_algo1 = (all_mean_fitness_algo1 - 0) / (100 - 0)
@@ -82,17 +78,11 @@ for enemy in [2, 3, 5]:
     normalized_mean_fitness_algo2 = (all_mean_fitness_algo2 - 0) / (120 - 0)
 
     # Calculate mean and std deviation for normalized fitness values
-    mean_norm_max_fitness_algo1 = np.mean(normalized_max_fitness_algo1, axis=0)
-    std_norm_max_fitness_algo1 = np.std(normalized_max_fitness_algo1, axis=0)
+    mean_norm_max_fitness_algo1, std_norm_max_fitness_algo1 = compute_mean_stdev(normalized_max_fitness_algo1)
+    mean_norm_mean_fitness_algo1, std_norm_mean_fitness_algo1 = compute_mean_stdev(normalized_mean_fitness_algo1)
 
-    mean_norm_mean_fitness_algo1 = np.mean(normalized_mean_fitness_algo1, axis=0)
-    std_norm_mean_fitness_algo1 = np.std(normalized_mean_fitness_algo1, axis=0)
-
-    mean_norm_max_fitness_algo2 = np.mean(normalized_max_fitness_algo2, axis=0)
-    std_norm_max_fitness_algo2 = np.std(normalized_max_fitness_algo2, axis=0)
-
-    mean_norm_mean_fitness_algo2 = np.mean(normalized_mean_fitness_algo2, axis=0)
-    std_norm_mean_fitness_algo2 = np.std(normalized_mean_fitness_algo2, axis=0)
+    mean_norm_max_fitness_algo2, std_norm_max_fitness_algo2 = compute_mean_stdev(normalized_max_fitness_algo2)
+    mean_norm_mean_fitness_algo2, std_norm_mean_fitness_algo2 = compute_mean_stdev(normalized_mean_fitness_algo2)
 
     # Create experiment directory if it doesn't exist
     plot_dir = os.path.join(directory, 'plots')
