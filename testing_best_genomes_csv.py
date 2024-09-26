@@ -9,7 +9,7 @@ from evoman.controller import Controller
 number_of_hidden_neurons = 10
 csv_path = f'runs/best_genomes.csv'
 input_size = 20  # Hardcoded number of sensors
-random_start = True
+random_start = False
 
 # Initialize a neural controller
 neural_controller = Controller(input_size, number_of_hidden_neurons)
