@@ -1,0 +1,15 @@
+Experiment Parameters
+=====================
+Experiment Name: test_4_1_100pop_30gen_enemy2
+Number of Hidden Neurons: 10
+Population Size per Generation: 100
+Number of Generations: 30
+Crossover Chance: 0.8
+Number of Crossover Points: 5
+Mutation Chance: 0.2
+Number of Elite Individuals: 10
+Tournament Selection K-Members: 5
+Fitness Calculation Expression:
+def calc_cust_fitness(player_life, enemy_life, time):
+            return (0.8 * (100 - enemy_life)) + (0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(time)
+=====================
