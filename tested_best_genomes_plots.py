@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 random_trained = False
-random_tested = True
+random_tested = False
 directory = f'runs/{"random/" if random_trained else ""}'
 csv_path = os.path.join(directory, f'best_genomes_{"random" if random_tested else "fixed"}.csv')
 
