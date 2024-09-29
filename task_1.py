@@ -2,7 +2,7 @@ import numpy as np
 import os
 import csv
 from evoman.environment import Environment
-from evoman.controller import Controller
+from neural_controller import Controller
 import random
 import time
 import inspect

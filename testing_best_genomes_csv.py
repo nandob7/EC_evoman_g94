@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from evoman.environment import Environment
-from evoman.controller import Controller
+from neural_controller import Controller
 
 # Parameters
 number_of_hidden_neurons = 10

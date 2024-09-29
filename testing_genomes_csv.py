@@ -3,7 +3,7 @@ import os
 import csv
 
 from evoman.environment import Environment
-from evoman.controller import Controller
+from neural_controller import Controller
 
 # Parameters
 desired_generation = 15
