@@ -31,10 +31,6 @@ sns.boxplot(x='enemy', y='gain', hue='ea', data=flattened_df, palette='Set2')
 plt.title(f'Gain Distribution by Enemy and EA: {"Random" if random_trained else "Fixed"} position trained, {"Random" if random_tested else "Fixed"} position tested')
 plt.xlabel('Enemy')
 plt.ylabel('Gain')
-
-# Adjust x-axis ticks to only show the unique enemy values
-unique_enemies = sorted(flattened_df['enemy'].unique())
-plt.xticks(ticks=range(len(unique_enemies)), labels=unique_enemies)
 plt.legend(title='EA', title_fontsize="16", fontsize=16)
 
 # Save or show the figure
