@@ -19,9 +19,9 @@ params_ea1 = {
     "n_crossover_points": 2,
     "mutation_chance": 0.15,
     "num_elite": 20,
-    "k_members": 2,
+    "k_members": 3,
     "custom_fitness": False,
-    "random_start": True,
+    "random_start": False,
     "n_ea": 1
 }
 params_ea2 = {
@@ -31,7 +31,7 @@ params_ea2 = {
     "num_elite": 10,
     "k_members": 5,
     "custom_fitness": True,
-    "random_start": True,
+    "random_start": False,
     "n_ea": 2
 }
 

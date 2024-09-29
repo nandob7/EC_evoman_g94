@@ -24,7 +24,7 @@ best_genomes['gain'] = [[] for _ in range(len(best_genomes))]
 for enemy in enemies:
     for ea in eas:
         relevant_genomes = best_genomes[(best_genomes['ea'] == ea) & (best_genomes['enemy'] == enemy)]
-        for i, genome in relevant_genomes.iterrows():
+        for _, genome in relevant_genomes.iterrows():
             experiment_name = f'test_4_ea{ea}_e{enemy}_r{int(genome["run"])}'
 
             for i in range(5):
@@ -37,7 +37,6 @@ for enemy in enemies:
                     level=2,
                     randomini='yes' if random_start else 'no',
                     savelogs='no',
-                    # logs='no',
                     # speed='normal',
                     # visuals=True,
                     enemies=[enemy]

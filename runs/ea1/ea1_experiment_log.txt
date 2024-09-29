@@ -11,4 +11,5 @@ Number of Elite Individuals: 20
 Tournament Selection K-Members: 3
 Fitness Calculation Expression:
 Default
+Random Start: False
 =====================
