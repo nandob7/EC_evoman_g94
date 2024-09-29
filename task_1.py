@@ -19,7 +19,7 @@ params_ea1 = {
     "n_crossover_points": 2,
     "mutation_chance": 0.15,
     "num_elite": 20,
-    "k_members": 2,
+    "k_members": 3,
     "custom_fitness": False,
     "random_start": False,
     "n_ea": 1
