@@ -67,7 +67,7 @@ for enemy in enemies:
     mean_max_fitness_algo2, std_max_fitness_algo2 = compute_mean_stdev(all_max_fitness_algo2)
     mean_mean_fitness_algo2, std_mean_fitness_algo2 = compute_mean_stdev(all_mean_fitness_algo2)
 
-    # Normalize the fitness values
+    # Normalize the fitness values with max fitness per fitness function
     max_fitness_algo1, min_fitness_algo1 = np.max(all_max_fitness_algo1), np.min(all_mean_fitness_algo1)
     max_fitness_algo2, min_fitness_algo2 = np.max(all_max_fitness_algo2), np.min(all_mean_fitness_algo2)
 
@@ -84,7 +84,6 @@ for enemy in enemies:
     mean_norm_max_fitness_algo2, std_norm_max_fitness_algo2 = compute_mean_stdev(normalized_max_fitness_algo2)
     mean_norm_mean_fitness_algo2, std_norm_mean_fitness_algo2 = compute_mean_stdev(normalized_mean_fitness_algo2)
 
-    # Create experiment directory if it doesn't exist
     plot_dir = os.path.join(directory, 'plots')
     if not os.path.exists(plot_dir):
         os.makedirs(plot_dir)

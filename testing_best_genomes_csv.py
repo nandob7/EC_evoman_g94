@@ -37,7 +37,6 @@ for enemy in enemies:
                     level=2,
                     randomini='yes' if random_start else 'no',
                     savelogs='no',
-                    # logs='no',
                     # speed='normal',
                     # visuals=True,
                     enemies=[enemy]
