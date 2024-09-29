@@ -6,12 +6,13 @@ from evoman.environment import Environment
 from evoman.controller import Controller
 
 # Parameters
-desired_generation = 30
-enemy = 5
+desired_generation = 15
+enemy = 3
 number_of_hidden_neurons = 10
-experiment_name = f'test_4_10_100pop_30gen_enemy{enemy}'
+run = 7
+experiment_name = f'runs/ea1/enemy{enemy}/test_4_{run}_100pop_30gen_enemy{enemy}'
 input_size = 20  # Hardcoded number of sensors
-
+random_start = False
 
 # Create experiment directory if it doesn't exist
 if not os.path.exists(experiment_name):
@@ -25,12 +26,14 @@ env_test = Environment(
     experiment_name=experiment_name,
     playermode="ai",
     player_controller=neural_controller,  # Pass the controller directly
-    speed="normal",
     enemymode="static",
     level=2,
+    randomini='yes' if random_start else 'no',
+    savelogs='no',
+    speed='normal',
     visuals=True,
     enemies=[enemy]
-)
+    )
 
 
 def load_best_genome_from_csv(csv_file_path, generation):
@@ -60,7 +63,9 @@ def load_best_genome_from_csv(csv_file_path, generation):
 
 
 def calc_cust_fitness(player_life, enemy_life, time):
-    return (0.8 * (100 - enemy_life)) + (0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(time)
+    return (0.8 * (100 - enemy_life)) + (
+        0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(
+        time)
 
 
 # File path to the CSV
