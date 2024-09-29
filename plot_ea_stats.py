@@ -8,7 +8,7 @@ n_runs = 10
 n_generations = 30
 eas = [1, 2]
 enemies = [2, 3, 5]
-random_start = True
+random_start = False
 directory = f'runs/{"random/" if random_start else ""}'
 
 # Create experiment directory if it doesn't exist
@@ -124,7 +124,7 @@ for enemy in enemies:
     plt.yticks(np.arange(0, 121, 20))
     plt.xlabel('Generation')
     plt.ylabel('Fitness')
-    plt.legend()
+    plt.legend(fontsize=16)
     plt.savefig(f'runs/{"random/" if random_start else ""}plots/enemy{enemy}_regular_fitness_comparison_plot.png')
     plt.show()
 
@@ -164,6 +164,6 @@ for enemy in enemies:
     plt.yticks(np.arange(0, 1.1, 0.2))
     plt.xlabel('Generation')
     plt.ylabel('Normalized Fitness')
-    plt.legend()
+    plt.legend(fontsize=16)
     plt.savefig(f'runs/{"random/" if random_start else ""}plots/enemy{enemy}_normalized_fitness_comparison_plot.png')
     plt.show()

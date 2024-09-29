@@ -35,9 +35,7 @@ plt.ylabel('Gain')
 # Adjust x-axis ticks to only show the unique enemy values
 unique_enemies = sorted(flattened_df['enemy'].unique())
 plt.xticks(ticks=range(len(unique_enemies)), labels=unique_enemies)
-
-# Show the legend for EA algorithms
-plt.legend(title='EA')
+plt.legend(title='EA', title_fontsize="16", fontsize=16)
 
 # Save or show the figure
 plt.tight_layout()
