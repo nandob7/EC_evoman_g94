@@ -1,8 +1,7 @@
 import numpy as np
 import os
 from evoman.environment import Environment
-from evoman.controller import Controller
-import random
+from neural_controller import Controller
 
 # Parameters
 number_of_hidden_neurons = 10
@@ -31,6 +30,7 @@ env_test = Environment(
     enemies=[3]
 )
 
+
 def load_genomes_from_file(file_path):
     """
     Load genomes from a .txt file.
@@ -45,8 +45,8 @@ def load_genomes_from_file(file_path):
     return genomes
 
 
-file_path = 'test_1_100pop_30gen_enemy3/parents_generation_15.txt'
-genomes=load_genomes_from_file(file_path)
+file_path = 'runs/test_runs/test_1_100pop_30gen_enemy3/parents_generation_15.txt'
+genomes = load_genomes_from_file(file_path)
 
 best_genome = genomes[0]
 

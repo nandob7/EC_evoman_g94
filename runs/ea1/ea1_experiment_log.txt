@@ -1,6 +1,6 @@
 Experiment Parameters
 =====================
-Experiment Name: test_4_1_100pop_30gen_enemy2
+Experiment Name: test_4_1_100pop_30gen_enemy3
 Number of Hidden Neurons: 10
 Population Size per Generation: 100
 Number of Generations: 30
