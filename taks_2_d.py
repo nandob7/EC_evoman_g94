@@ -21,7 +21,7 @@ params_ea1 = {
     "mutation_chance": 0.15,
     "num_elite": 20,
     "k_members": 3,
-    "custom_fitness": True,
+    "custom_fitness": False,
     "random_start": False,
     "n_ea": 1
 }
@@ -65,7 +65,7 @@ def evaluate_genome(genome):
     Returns: The fitness value and statistics of the evaluated genome.
     """
     # Set the genome for the neural controller
-    neural_controller.set(genome, input_size)
+    # neural_controller.set(genome, input_size)
     # Play the environment using this controller and get the fitness score
     fitness, player_life, enemy_life, play_time = env.play(genome)
 
@@ -405,13 +405,13 @@ for params_ea in [params_ea1]:
             os.makedirs(directory, exist_ok=True)
 
             # Initialize a neural controller
-            neural_controller = Controller(input_size, number_of_hidden_neurons)
+            # neural_controller = Controller(input_size, number_of_hidden_neurons)
 
             # Initialize the environment with the hardcoded controller
             env = Environment(
                 experiment_name=experiment_name,
                 playermode="ai",
-                player_controller=neural_controller,  # Pass the controller directly
+                player_controller=player_controller(10),  # Pass the controller directly
                 enemymode="static",
                 level=2,
                 randomini='yes' if random_start else 'no',
@@ -419,12 +419,11 @@ for params_ea in [params_ea1]:
                 # speed='normal',
                 visuals=False, #disabling this massively speeds up training
                 enemies=[1,2,3,4,5,6,7,8],
-                multiplemode = 'yes'
+                multiplemode='yes'
             )
 
             # Calculate genome size for the given controller
-            genome_size = neural_controller.genome_size()
-
+            genome_size = 265
             # Initialize experiment
             start_time = time.time()
             save_experiment_parameters()
