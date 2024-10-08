@@ -1,9 +1,9 @@
 Experiment Parameters
 =====================
-Experiment Name: test_4_8_100pop_30gen_enemy3
+Experiment Name: test_4_2_100pop_30gen_enemy3
 Number of Hidden Neurons: 10
 Population Size per Generation: 100
-Number of Generations: 30
+Number of Generations: 15
 Crossover Chance: 0.8
 Number of Crossover Points: 5
 Mutation Chance: 0.2

@@ -1,15 +1,23 @@
 Experiment Parameters
 =====================
-Experiment Name: test_4_1_100pop_30gen_enemy3
+Experiment Name: test_4_1_100pop_15gen_enemy8
 Number of Hidden Neurons: 10
 Population Size per Generation: 100
-Number of Generations: 30
+Number of Generations: 15
 Crossover Chance: 0.7
 Number of Crossover Points: 2
 Mutation Chance: 0.15
 Number of Elite Individuals: 20
 Tournament Selection K-Members: 3
 Fitness Calculation Expression:
-Default
+def calc_cust_fitness(player_life, enemy_life, play_time):
+    """
+    Calculates the custom fitness
+    player_life: The energy level of the player
+    enemy_life: The energy level of the enemy
+    play_time: The play time surpassed
+    Returns: A float value of the computed custom fitness function
+    """
+    return (0.8 * (100 - enemy_life)) + (0.4 * player_life if player_life > 75 else 0.2 * player_life if player_life > 50 else 0.1 * player_life) - np.log(play_time)
 Random Start: False
 =====================

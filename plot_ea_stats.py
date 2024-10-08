@@ -2,12 +2,13 @@ import os
 import matplotlib.pyplot as plt
 import csv
 import numpy as np
+from collections import deque
 
 # Parameters
-n_runs = 10
-n_generations = 30
-eas = [1, 2]
-enemies = [2, 3, 5]
+n_runs = 1
+n_generations = 15
+eas = [1]
+enemies = [1, 2, 3, 4, 5, 6, 7, 8]
 random_start = False
 directory = f'runs/{"random/" if random_start else ""}'
 
@@ -30,8 +31,8 @@ for enemy in enemies:
     all_mean_fitness_algo2 = np.zeros((n_runs, n_generations))
 
     for ea in eas:
-        for i in range(10):
-            experiment_dir = os.path.join(directory, f'ea{ea}/enemy{enemy}/test_4_{i + 1}_100pop_30gen_enemy{enemy}')
+        for i in range(1):
+            experiment_dir = os.path.join(directory, f'ea{ea}/enemy{enemy}/test_4_{i + 1}_100pop_15gen_enemy{enemy}')
             csv_file_path = os.path.join(experiment_dir, 'all_statistics.csv')
 
             with open(csv_file_path, 'r') as csvfile:
@@ -71,8 +72,8 @@ for enemy in enemies:
     max_fitness_algo1, min_fitness_algo1 = np.max(all_max_fitness_algo1), np.min(all_mean_fitness_algo1)
     max_fitness_algo2, min_fitness_algo2 = np.max(all_max_fitness_algo2), np.min(all_mean_fitness_algo2)
 
-    normalized_max_fitness_algo1 = (all_max_fitness_algo1 - 0) / (100 - 0)
-    normalized_mean_fitness_algo1 = (all_mean_fitness_algo1 - 0) / (100 - 0)
+    normalized_max_fitness_algo1 = (all_max_fitness_algo1 - 0) / (120 - 0)
+    normalized_mean_fitness_algo1 = (all_mean_fitness_algo1 - 0) / (120 - 0)
 
     normalized_max_fitness_algo2 = (all_max_fitness_algo2 - 0) / (120 - 0)
     normalized_mean_fitness_algo2 = (all_mean_fitness_algo2 - 0) / (120 - 0)
@@ -105,18 +106,18 @@ for enemy in enemies:
                      mean_mean_fitness_algo1 + std_mean_fitness_algo1, color='lightgreen', alpha=0.5,
                      label="EA1 Avg Fitness Std Dev")
 
-    # Plot Algorithm 2 Regular Max Fitness with Std Dev
-    plt.plot(range(n_generations), mean_max_fitness_algo2, label="EA2 Mean Max Fitness", color="red", marker='o')
-    plt.fill_between(range(n_generations), mean_max_fitness_algo2 - std_max_fitness_algo2,
-                     mean_max_fitness_algo2 + std_max_fitness_algo2, color='lightcoral', alpha=0.5,
-                     label="EA2 Max Fitness Std Dev")
-
-    # Plot Algorithm 2 Regular Mean Fitness with Std Dev
-    plt.plot(range(n_generations), mean_mean_fitness_algo2, label="EA2 Mean Avg Fitness", color="orange",
-             linestyle='--', marker='x')
-    plt.fill_between(range(n_generations), mean_mean_fitness_algo2 - std_mean_fitness_algo2,
-                     mean_mean_fitness_algo2 + std_mean_fitness_algo2, color='navajowhite', alpha=0.5,
-                     label="EA2 Avg Fitness Std Dev")
+    # # Plot Algorithm 2 Regular Max Fitness with Std Dev
+    # plt.plot(range(n_generations), mean_max_fitness_algo2, label="EA2 Mean Max Fitness", color="red", marker='o')
+    # plt.fill_between(range(n_generations), mean_max_fitness_algo2 - std_max_fitness_algo2,
+    #                  mean_max_fitness_algo2 + std_max_fitness_algo2, color='lightcoral', alpha=0.5,
+    #                  label="EA2 Max Fitness Std Dev")
+    #
+    # # Plot Algorithm 2 Regular Mean Fitness with Std Dev
+    # plt.plot(range(n_generations), mean_mean_fitness_algo2, label="EA2 Mean Avg Fitness", color="orange",
+    #          linestyle='--', marker='x')
+    # plt.fill_between(range(n_generations), mean_mean_fitness_algo2 - std_mean_fitness_algo2,
+    #                  mean_mean_fitness_algo2 + std_mean_fitness_algo2, color='navajowhite', alpha=0.5,
+    #                  label="EA2 Avg Fitness Std Dev")
 
     # Labels and legend
     plt.ylim(0, 120)
@@ -145,18 +146,18 @@ for enemy in enemies:
                      mean_norm_mean_fitness_algo1 + std_norm_mean_fitness_algo1, color='lightgreen', alpha=0.5,
                      label="EA1 Norm Avg Fitness Std Dev")
 
-    # Plot Algorithm 2 Normalized Max Fitness with Std Dev
-    plt.plot(range(n_generations), mean_norm_max_fitness_algo2, label="EA2 Norm Max Fitness", color="red", marker='o')
-    plt.fill_between(range(n_generations), mean_norm_max_fitness_algo2 - std_norm_max_fitness_algo2,
-                     mean_norm_max_fitness_algo2 + std_norm_max_fitness_algo2, color='lightcoral', alpha=0.5,
-                     label="EA2 Norm Max Fitness Std Dev")
-
-    # Plot Algorithm 2 Normalized Mean Fitness with Std Dev
-    plt.plot(range(n_generations), mean_norm_mean_fitness_algo2, label="EA2 Norm Avg Fitness", color="orange",
-             linestyle='--', marker='x')
-    plt.fill_between(range(n_generations), mean_norm_mean_fitness_algo2 - std_norm_mean_fitness_algo2,
-                     mean_norm_mean_fitness_algo2 + std_norm_mean_fitness_algo2, color='navajowhite', alpha=0.5,
-                     label="EA2 Norm Avg Fitness Std Dev")
+    # # Plot Algorithm 2 Normalized Max Fitness with Std Dev
+    # plt.plot(range(n_generations), mean_norm_max_fitness_algo2, label="EA2 Norm Max Fitness", color="red", marker='o')
+    # plt.fill_between(range(n_generations), mean_norm_max_fitness_algo2 - std_norm_max_fitness_algo2,
+    #                  mean_norm_max_fitness_algo2 + std_norm_max_fitness_algo2, color='lightcoral', alpha=0.5,
+    #                  label="EA2 Norm Max Fitness Std Dev")
+    #
+    # # Plot Algorithm 2 Normalized Mean Fitness with Std Dev
+    # plt.plot(range(n_generations), mean_norm_mean_fitness_algo2, label="EA2 Norm Avg Fitness", color="orange",
+    #          linestyle='--', marker='x')
+    # plt.fill_between(range(n_generations), mean_norm_mean_fitness_algo2 - std_norm_mean_fitness_algo2,
+    #                  mean_norm_mean_fitness_algo2 + std_norm_mean_fitness_algo2, color='navajowhite', alpha=0.5,
+    #                  label="EA2 Norm Avg Fitness Std Dev")
 
     # Labels and legend
     plt.ylim(0, 1)
