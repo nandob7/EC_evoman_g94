@@ -1,12 +1,12 @@
 Experiment Parameters
 =====================
-Experiment Name: test_4_1_100pop_15gen_enemy4
+Experiment Name: test_4_1_100pop_15gen_enemy1
 Number of Hidden Neurons: 10
 Population Size per Generation: 100
 Number of Generations: 15
 Crossover Chance: 0.7
 Number of Crossover Points: 2
-Mutation Chance: 0.15
+Mutation Chance: 0.01
 Number of Elite Individuals: 20
 Tournament Selection K-Members: 3
 Fitness Calculation Expression:

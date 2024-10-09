@@ -7,6 +7,7 @@ import random
 import time
 import inspect
 from demo_controller import player_controller
+import optuna
 
 # Parameters
 number_of_hidden_neurons = 10
@@ -15,16 +16,20 @@ population_size_per_gen = 100
 number_of_gen = 15
 enemies = [1, 2, 3, 4, 5, 6, 7, 8]
 
+custom_fitness = False
+random_start = False
+
 params_ea1 = {
     "crossover_chance": 0.7,
     "n_crossover_points": 2,
-    "mutation_chance": 0.15,
+    "mutation_chance": 0.01,
     "num_elite": 20,
     "k_members": 3,
     "custom_fitness": False,
     "random_start": False,
     "n_ea": 1
 }
+
 params_ea2 = {
     "crossover_chance": 0.8,
     "n_crossover_points": 5,
@@ -247,7 +252,6 @@ def calculate_selection_probabilities(sorted_parents_with_fitness):
         (genome, fitness, prob) for (genome, fitness), prob in
         zip(sorted_parents_with_fitness, probabilities)
     ]
-
     return parents_with_probabilities
 
 
@@ -376,132 +380,214 @@ def save_experiment_parameters():
     print(f"Experiment parameters saved to {log_file_path}")
 
 
-# Loop per preset algorithm
-for params_ea in [params_ea1]:
-    crossover_chance = params_ea["crossover_chance"]
-    n_crossover_points = params_ea["n_crossover_points"]
-    mutation_chance = params_ea["mutation_chance"]
-    num_elite = params_ea["num_elite"]
-    k_members = params_ea["k_members"]
-    custom_fitness = params_ea["custom_fitness"]
-    random_start = params_ea["random_start"]
-    n_ea = params_ea["n_ea"]
-    path = f"runs/{'random/' if random_start else ''}ea{n_ea}"
+# # Loop per preset algorithm
+# for params_ea in [params_ea1]:
+#     crossover_chance = params_ea["crossover_chance"]
+#     n_crossover_points = params_ea["n_crossover_points"]
+#     mutation_chance = params_ea["mutation_chance"]
+#     num_elite = params_ea["num_elite"]
+#     k_members = params_ea["k_members"]
+#     custom_fitness = params_ea["custom_fitness"]
+#     random_start = params_ea["random_start"]
+#     n_ea = params_ea["n_ea"]
+#     path = f"runs/{'random/' if random_start else ''}ea{n_ea}"
+#
+#     # Loop per enemy per EA
+#     for enemy in enemies: #kan weg, per ea weer toevoegen
+#
+#         # Loop for 10 experiment runs per enemy per EA
+#         for run in range(1):
+#             experiment_name = f'test_4_{run + 1}_100pop_15gen_enemy{enemy}'
+#             directory = os.path.join(path, os.path.join(f'enemy{enemy}', experiment_name))
+#
+#             # choose this for not using visuals and thus making experiments faster
+#             headless = True
+#             if headless:
+#                 os.environ["SDL_VIDEODRIVER"] = "dummy"
+#
+#             # Create directory if it doesn't exist
+#             os.makedirs(directory, exist_ok=True)
+#
+#             # Initialize a neural controller
+#             # neural_controller = Controller(input_size, number_of_hidden_neurons)
+#
+#             # Initialize the environment with the hardcoded controller
+#             env = Environment(
+#                 experiment_name=experiment_name,
+#                 playermode="ai",
+#                 player_controller=player_controller(10),  # Pass the controller directly
+#                 enemymode="static",
+#                 level=2,
+#                 randomini='yes' if random_start else 'no',
+#                 savelogs='no',
+#                 # speed='normal',
+#                 visuals=False, #disabling this massively speeds up training
+#                 enemies=[1,2,3,4,5,6,7,8],
+#                 multiplemode='yes'
+#             )
+#
+#             # Calculate genome size for the given controller
+#             genome_size = 265
+#             # Initialize experiment
+#             start_time = time.time()
+#             save_experiment_parameters()
+#             population = [create_random_genome(genome_size) for _ in range(population_size_per_gen)]
+#
+#             # Loop for multiple generations of experiment run
+#             for generation in range(number_of_gen):
+#                 print(f"Generation {generation + 1}/{number_of_gen}")
+#
+#                 # Record the start time for generation evaluation
+#                 gen_start_time = time.time()
+#
+#                 # Evaluate fitness for each genome in the population
+#                 population_fitness = []
+#                 player_wins = 0
+#                 enemy_wins = 0
+#                 player_energy = []
+#                 enemy_energy = []
+#                 play_times = []
+#                 for i, genome in enumerate(population):
+#                     fitness, player_life, enemy_life, play_time = evaluate_genome(genome)
+#                     population_fitness.append(fitness)
+#                     player_energy.append(player_life)
+#                     enemy_energy.append(enemy_life)
+#                     play_times.append(play_time)
+#
+#                     if player_life < enemy_life:
+#                         enemy_wins += 1
+#                     elif player_life > enemy_life:
+#                         player_wins += 1
+#
+#                 # Create a list of tuples (genome, fitness)
+#                 population_with_fitness = list(zip(population, population_fitness))
+#                 sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
+#
+#                 # Save generation statistics
+#                 save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy,
+#                                     enemy_energy, play_times)
+#
+#                 # Select parents for the next generation
+#                 parents = parent_selection(sorted_population_with_fitness, num_elite=num_elite, k=k_members)
+#                 parents_with_probabilities = calculate_selection_probabilities(parents)
+#
+#                 # Number of children to create (should be the same as the number of parents)
+#                 num_children = len(parents)
+#
+#                 # Sample parents and form pairs
+#                 parent_pairs = sample_parents_for_crossover(parents_with_probabilities, num_children)
+#
+#                 # Apply crossover to each pair and generate offspring
+#                 offspring = []
+#                 for parent1, parent2 in parent_pairs:
+#                     offspring1, offspring2 = crossover((parent1, parent2), n_crossover_points,
+#                                                        crossover_probability=crossover_chance,
+#                                                        mutation_rate=mutation_chance)
+#                     offspring.extend([offspring1, offspring2])
+#
+#                 # Ensure the new population size matches the original population size
+#                 population = offspring[:population_size_per_gen]
+#
+#                 # Save the all parents (not offspring) of the current generation to a file
+#                 save_genomes_to_csv(sorted_population_with_fitness, generation)
+#
+#                 # You may want to save or log the best genome of this generation
+#                 best_genome = sorted_population_with_fitness[0][0]
+#                 print(f"Best fitness in generation {generation + 1}: {sorted_population_with_fitness[0][1]}")
+#
+#                 # Record the end time for generation evaluation
+#                 gen_end_time = time.time()
+#
+#                 # Calculate the time it took to evaluate this generation
+#                 gen_time = gen_end_time - gen_start_time
+#                 print(f"Time taken to evaluate generation {generation + 1}: {gen_time:.2f} seconds")
+#
+#             # Calculate and print the total time trained
+#             end_time = time.time()
+#             total_time = end_time - start_time
+#             print(f"Total time trained: {total_time:.2f} seconds")
+#             print(f"Evolution EA {n_ea}, Enemy {enemy}, Experiment {run} finished!")
+#         print(f"Evolution EA {n_ea}, Enemy {enemy} finished!")
+#     print(f"Evolution EA {n_ea} finished!")
 
-    # Loop per enemy per EA
-    for enemy in enemies:
+def objective(trial):
+    crossover_chance = trial.suggest_float("crossover_chance", 0, 1)
+    mutation_chance = trial.suggest_float("mutation_chance", 0, 0.5)
+    num_elite = trial.suggest_int("num_elite", 0, 30)
+    k_members = trial.suggest_int("k_members", 2, 10)
+    n_crossover_points = trial.suggest_int("n_crossover_points", 1, 5)
 
-        # Loop for 10 experiment runs per enemy per EA
-        for run in range(1):
-            experiment_name = f'test_4_{run + 1}_100pop_15gen_enemy{enemy}'
-            directory = os.path.join(path, os.path.join(f'enemy{enemy}', experiment_name))
+    env = Environment(
+        experiment_name=f'optuna_trial_{trial.number}',  # Unique name per trial
+        playermode="ai",
+        player_controller=player_controller(number_of_hidden_neurons),
+        enemymode="static",
+        level=2,
+        randomini='no',
+        savelogs='no',
+        visuals=False,
+        enemies=enemies,
+        multiplemode='yes'
+    )
 
-            # choose this for not using visuals and thus making experiments faster
-            headless = True
-            if headless:
-                os.environ["SDL_VIDEODRIVER"] = "dummy"
+    # Initialize the population
 
-            # Create directory if it doesn't exist
-            os.makedirs(directory, exist_ok=True)
+    population = [create_random_genome(265) for _ in range(population_size_per_gen)]
 
-            # Initialize a neural controller
-            # neural_controller = Controller(input_size, number_of_hidden_neurons)
+    best_genome = None
+    best_fitness = float('-inf')  # Initialize best fitness as the lowest possible value
 
-            # Initialize the environment with the hardcoded controller
-            env = Environment(
-                experiment_name=experiment_name,
-                playermode="ai",
-                player_controller=player_controller(10),  # Pass the controller directly
-                enemymode="static",
-                level=2,
-                randomini='yes' if random_start else 'no',
-                savelogs='no',
-                # speed='normal',
-                visuals=False, #disabling this massively speeds up training
-                enemies=[1,2,3,4,5,6,7,8],
-                multiplemode='yes'
-            )
+    # Evolutionary loop (similar to your original)
+    for generation in range(number_of_gen):
+        # Evaluate all genomes in the population
+        population_fitness = []
+        for genome in population:
+            fitness, player_life, enemy_life, play_time = evaluate_genome(genome)
+            population_fitness.append(fitness)
 
-            # Calculate genome size for the given controller
-            genome_size = 265
-            # Initialize experiment
-            start_time = time.time()
-            save_experiment_parameters()
-            population = [create_random_genome(genome_size) for _ in range(population_size_per_gen)]
+        # Sort by fitness and get the best one
+        population_with_fitness = list(zip(population, population_fitness))
+        sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
 
-            # Loop for multiple generations of experiment run
-            for generation in range(number_of_gen):
-                print(f"Generation {generation + 1}/{number_of_gen}")
+        # Track the best fitness of this generation
+        if sorted_population_with_fitness[0][1] > best_fitness:
+            best_fitness = sorted_population_with_fitness[0][1]
+            best_genome = sorted_population_with_fitness[0][0]
 
-                # Record the start time for generation evaluation
-                gen_start_time = time.time()
+        # Perform the selection, crossover, and mutation to form the next generation
+        parents = parent_selection(sorted_population_with_fitness, num_elite=num_elite, k=k_members)
+        parents_with_probabilities = calculate_selection_probabilities(parents)
 
-                # Evaluate fitness for each genome in the population
-                population_fitness = []
-                player_wins = 0
-                enemy_wins = 0
-                player_energy = []
-                enemy_energy = []
-                play_times = []
-                for i, genome in enumerate(population):
-                    fitness, player_life, enemy_life, play_time = evaluate_genome(genome)
-                    population_fitness.append(fitness)
-                    player_energy.append(player_life)
-                    enemy_energy.append(enemy_life)
-                    play_times.append(play_time)
+        parent_pairs = sample_parents_for_crossover(parents_with_probabilities, len(parents))
+        offspring = []
+        for parent1, parent2 in parent_pairs:
+            offspring1, offspring2 = crossover((parent1, parent2), n_crossover_points, crossover_chance,
+                                               mutation_chance)
+            offspring.extend([offspring1, offspring2])
 
-                    if player_life < enemy_life:
-                        enemy_wins += 1
-                    elif player_life > enemy_life:
-                        player_wins += 1
+        population = offspring[:population_size_per_gen]  # Keep the population size consistent
 
-                # Create a list of tuples (genome, fitness)
-                population_with_fitness = list(zip(population, population_fitness))
-                sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
+    # Return the best fitness score found in this trial
+    return best_fitness
 
-                # Save generation statistics
-                save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy,
-                                    enemy_energy, play_times)
+env = Environment(
+    experiment_name=f'optuna_trial',
+    playermode="ai",
+    player_controller=player_controller(10),  # Pass the controller directly
+    enemymode="static",
+    level=2,
+    randomini='no',
+    savelogs='no',
+    # speed='normal',
+    visuals=False, #disabling this massively speeds up training
+    enemies=[1,2,3,4,5,6,7,8],
+    multiplemode='yes'
+)
 
-                # Select parents for the next generation
-                parents = parent_selection(sorted_population_with_fitness, num_elite=num_elite, k=k_members)
-                parents_with_probabilities = calculate_selection_probabilities(parents)
+# Define the study and optimize the objective function
+study = optuna.create_study(direction="maximize")
+study.optimize(objective, n_trials=100)
 
-                # Number of children to create (should be the same as the number of parents)
-                num_children = len(parents)
-
-                # Sample parents and form pairs
-                parent_pairs = sample_parents_for_crossover(parents_with_probabilities, num_children)
-
-                # Apply crossover to each pair and generate offspring
-                offspring = []
-                for parent1, parent2 in parent_pairs:
-                    offspring1, offspring2 = crossover((parent1, parent2), n_crossover_points,
-                                                       crossover_probability=crossover_chance,
-                                                       mutation_rate=mutation_chance)
-                    offspring.extend([offspring1, offspring2])
-
-                # Ensure the new population size matches the original population size
-                population = offspring[:population_size_per_gen]
-
-                # Save the all parents (not offspring) of the current generation to a file
-                save_genomes_to_csv(sorted_population_with_fitness, generation)
-
-                # You may want to save or log the best genome of this generation
-                best_genome = sorted_population_with_fitness[0][0]
-                print(f"Best fitness in generation {generation + 1}: {sorted_population_with_fitness[0][1]}")
-
-                # Record the end time for generation evaluation
-                gen_end_time = time.time()
-
-                # Calculate the time it took to evaluate this generation
-                gen_time = gen_end_time - gen_start_time
-                print(f"Time taken to evaluate generation {generation + 1}: {gen_time:.2f} seconds")
-
-            # Calculate and print the total time trained
-            end_time = time.time()
-            total_time = end_time - start_time
-            print(f"Total time trained: {total_time:.2f} seconds")
-            print(f"Evolution EA {n_ea}, Enemy {enemy}, Experiment {run} finished!")
-        print(f"Evolution EA {n_ea}, Enemy {enemy} finished!")
-    print(f"Evolution EA {n_ea} finished!")
+# You can print or save the best found parameters
+print(f"Best parameters: {study.best_params}")
+print(f"Best fitness: {study.best_value}")
