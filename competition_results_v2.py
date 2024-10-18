@@ -1,15 +1,18 @@
-import os
-from math import pi
 
+import sys
 import matplotlib.pyplot as plt
+from math import pi
+from matplotlib.ticker import AutoLocator
+from matplotlib.offsetbox import AnchoredText
+
+
+from evoman.environment import Environment
+from demo_controller import player_controller
 import numpy as np
 import pandas as pd
-from matplotlib.offsetbox import AnchoredText
-from matplotlib.ticker import AutoLocator
-
-from demo_controller import player_controller
-from evoman.environment import Environment
-
+import pickle as pkl
+import os
+import pygame
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 ###### CREATE A FOLDER CALLED solutions IN THE SAME DIRECTORY AS THIS SCRIPT  AND PASTE ALL SOLUTION TXTs THERE ! #####
