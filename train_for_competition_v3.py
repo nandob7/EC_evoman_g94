@@ -354,10 +354,10 @@ number_of_gen = 1000
 n_ea = 1  # Example value
 custom_fitness = True
 random_start = False
-path = f"runs/competition/run_5"
+path = f"runs/competition/run_6"
 directory = path
 beaten = {}
-enemies = [2, 3, 5, 8]
+enemies = [2, 4, 5, 7, 8]
 
 # Create run directory if it doesn't exist
 os.makedirs(directory, exist_ok=True)

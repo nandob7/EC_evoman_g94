@@ -30,7 +30,7 @@ enemies = [2, 3, 5]
 
 # Set up directory and file path
 directory = 'runs/competition'
-run = 2
+run = 4
 csv_path = os.path.join(directory, f'run_{run}/all_parents.csv')
 
 # Load the genomes CSV
