@@ -6,11 +6,13 @@ from evoman.environment import Environment
 from neural_controller import Controller
 
 # Parameters
-desired_generation = 15
+desired_generation = 312
 enemy = 3
 number_of_hidden_neurons = 10
 run = 7
-experiment_name = f'runs/ea1/enemy{enemy}/test_4_{run}_100pop_30gen_enemy{enemy}'
+ea = 1
+# experiment_name = f'runs/ea{ea}/enemy{enemy}/test_4_{run}_100pop_30gen_enemy{enemy}'
+experiment_name = f'runs/competition/run_1'
 input_size = 20  # Hardcoded number of sensors
 random_start = False
 
@@ -32,7 +34,8 @@ env_test = Environment(
     savelogs='no',
     speed='normal',
     visuals=True,
-    enemies=[enemy]
+    enemies=[1, 2, 3, 4, 5, 6, 7, 8],
+    multiplemode='yes'
     )
 
 
