@@ -485,17 +485,17 @@ def random_parameters():
     Returns a dictionary with randomized EA parameters.
     """
     params = {
-        "crossover_chance": np.random.uniform(0.4451, 0.8678),
-        "mutation_chance": np.random.uniform(0.4001, 0.4783),
-        "num_elite": int(np.random.uniform(11.36, 24.44)),
-        "k_members": int(np.random.uniform(3.31, 6.89)),
+        "crossover_chance": np.random.uniform(0.01, 0.95),
+        "mutation_chance": np.random.uniform(0.01, 0.95),
+        "num_elite": int(np.random.uniform(1, 80)),
+        "k_members": int(np.random.uniform(1, 20)),
         "n_crossover_points": int(np.random.uniform(1.59, 4.41))
     }
     return params
 
 
 # Loop per preset algorithm
-for config_id in range(150):  # Loop for 150 random parameter sets
+for config_id in range(500):  # Loop for 500 random parameter sets
     params_ea = random_parameters()  # Generate random parameters
 
     # Extract the randomized parameters
@@ -512,7 +512,7 @@ for config_id in range(150):  # Loop for 150 random parameter sets
     path = f"runs/{'random2/' if random_start else ''}ea{n_ea}"
 
     # Loop per enemy per EA
-    for enemy in enemies:
+    for _ in range(1):
         # Initialize dictionary to accumulate stats across 10 runs
         final_stats = {
             'max_fitness': [],
@@ -521,8 +521,10 @@ for config_id in range(150):  # Loop for 150 random parameter sets
         }
 
         # Create a single CSV file per enemy
-        enemy_csv_file = f"runs/random_search_{n_ea}/enemy_{enemy}_statistics.csv"
+        enemy_csv_file = f"runs/random_search_{n_ea}/all_enemy_statistics.csv"
         if not os.path.exists(enemy_csv_file):
+            # Ensure the directory for saving CSV files exists
+            os.makedirs(os.path.dirname(enemy_csv_file), exist_ok=True)
             with open(enemy_csv_file, 'w', newline='') as f:
                 writer = csv.writer(f)
                 # Write the header for the CSV
@@ -532,9 +534,9 @@ for config_id in range(150):  # Loop for 150 random parameter sets
                 ])
 
         # Loop for 10 experiment runs per enemy per EA
-        for run in range(10):
-            experiment_name = f'test_{run + 1}_100pop_15gen_enemy{enemy}'
-            directory = os.path.join(path, f"config_{config_id}/enemy_{enemy}", f'run_{run + 1}')
+        for run in range(1):
+            experiment_name = f'test_{run + 1}_100pop_15gen_all_enemy'
+            directory = os.path.join(path, f"config_{config_id}/all_enemy", f'run_{run + 1}')
 
             headless = True
             if headless:
@@ -553,8 +555,8 @@ for config_id in range(150):  # Loop for 150 random parameter sets
                 randomini='yes' if random_start else 'no',
                 savelogs='no',
                 visuals=False,
-                enemies=[enemy],
-                multiplemode='no'
+                enemies=[1,2,3,4,5,6,7,8],
+                multiplemode='yes'
             )
 
             # Calculate genome size for the given controller
@@ -632,7 +634,7 @@ for config_id in range(150):  # Loop for 150 random parameter sets
             end_time = time.time()
             total_time = end_time - start_time
             print(f"Total time trained: {total_time:.2f} seconds")
-            print(f"Evolution EA {n_ea}, Enemy {enemy}, Experiment {run} finished!")
+            print(f"Evolution EA {n_ea}, all enemies, Experiment {run} finished!")
 
         # After all 10 runs, save the averaged statistics for this enemy
         avg_max_fitness = np.mean(final_stats['max_fitness'])
