@@ -7,7 +7,7 @@ import random
 import time
 import inspect
 from demo_controller import player_controller
-import optuna
+
 
 # Parameters
 number_of_hidden_neurons = 10
@@ -347,38 +347,38 @@ def save_all_statistics(generation, population_fitness, player_wins, enemy_wins,
 
     print(f"Saved statistics for generation {generation + 1} to {file_path}")
 
-
-def save_experiment_parameters():
-    """
-    Saves the experiment parameters to a log file.
-    """
-    log_file_path = os.path.join(path, f'ea{n_ea}_experiment_log.txt')
-
-    # Open the log file and write the parameters
-    with open(log_file_path, 'w') as f:
-        f.write("Experiment Parameters\n")
-        f.write("=====================\n")
-        f.write(f"Experiment Name: {experiment_name}\n")
-        f.write(f"Number of Hidden Neurons: {number_of_hidden_neurons}\n")
-        f.write(f"Population Size per Generation: {population_size_per_gen}\n")
-        f.write(f"Number of Generations: {number_of_gen}\n")
-        f.write(f"Crossover Chance: {crossover_chance}\n")
-        f.write(f"Number of Crossover Points: {n_crossover_points}\n")
-        f.write(f"Mutation Chance: {mutation_chance}\n")
-        f.write(f"Number of Elite Individuals: {num_elite}\n")
-        f.write(f"Tournament Selection K-Members: {k_members}\n")
-
-        if custom_fitness:
-            fitness_expression = inspect.getsource(calc_cust_fitness).strip()
-            f.write(f"Fitness Calculation Expression:\n{fitness_expression}\n")
-        else:
-            f.write(f"Fitness Calculation Expression:\nDefault\n")
-
-        f.write(f"Random Start: {random_start}\n")
-        f.write("=====================\n")
-
-    print(f"Experiment parameters saved to {log_file_path}")
-
+#
+# def save_experiment_parameters():
+#     """
+#     Saves the experiment parameters to a log file.
+#     """
+#     log_file_path = os.path.join(path, f'ea{n_ea}_experiment_log.txt')
+#
+#     # Open the log file and write the parameters
+#     with open(log_file_path, 'w') as f:
+#         f.write("Experiment Parameters\n")
+#         f.write("=====================\n")
+#         f.write(f"Experiment Name: {experiment_name}\n")
+#         f.write(f"Number of Hidden Neurons: {number_of_hidden_neurons}\n")
+#         f.write(f"Population Size per Generation: {population_size_per_gen}\n")
+#         f.write(f"Number of Generations: {number_of_gen}\n")
+#         f.write(f"Crossover Chance: {crossover_chance}\n")
+#         f.write(f"Number of Crossover Points: {n_crossover_points}\n")
+#         f.write(f"Mutation Chance: {mutation_chance}\n")
+#         f.write(f"Number of Elite Individuals: {num_elite}\n")
+#         f.write(f"Tournament Selection K-Members: {k_members}\n")
+#
+#         if custom_fitness:
+#             fitness_expression = inspect.getsource(calc_cust_fitness).strip()
+#             f.write(f"Fitness Calculation Expression:\n{fitness_expression}\n")
+#         else:
+#             f.write(f"Fitness Calculation Expression:\nDefault\n")
+#
+#         f.write(f"Random Start: {random_start}\n")
+#         f.write("=====================\n")
+#
+#     print(f"Experiment parameters saved to {log_file_path}")
+#
 
 def save_final_generation_statistics(params_ea, population_fitness, csv_file_name='final_generation_statistics.csv'):
     """
@@ -496,18 +496,18 @@ def random_parameters():
 
 # Define the initial set of parameters
 params_ea = {
-    "crossover_chance": 0.446,  # Example value, modify as needed
-    "mutation_chance": 0.05,   # Example value, modify as needed
-    "num_elite": 32,          # Example value, modify as needed
-    "k_members": 10,           # Example value, modify as needed
-    "n_crossover_points": 2   # Example value, modify as needed
+    "crossover_chance": 0.7,  # Example value, modify as needed
+    "mutation_chance": 0.4,   # Example value, modify as needed
+    "num_elite": 25,          # Example value, modify as needed
+    "k_members": 8,           # Example value, modify as needed
+    "n_crossover_points": 3   # Example value, modify as needed
 }
 
 # Train for 1000 generations
 number_of_gen = 1000
 
 # Create a CSV file to save statistics and genomes for each generation
-stats_csv_file = "runs/specific_params_training_statistics_with_genomes.csv"
+stats_csv_file = "runs/competition_specific_params_training_statistics_with_genomes.csv"
 if not os.path.exists(stats_csv_file):
     with open(stats_csv_file, 'w', newline='') as f:
         writer = csv.writer(f)
