@@ -68,7 +68,7 @@ csv_file_path = os.path.join(experiment_name, 'all_parents.csv')
 # Load the best genome from the specified generation
 best_genome, best_fitness = load_best_genome_from_csv(csv_file_path, desired_generation)
 
-# np.savetxt('94.txt', best_genome)
+# init health dictionary for each enemy
 health = {f'{key}': [] for key in range(1, 9)}
 
 # Play the environment using the best genome and display its fitness
@@ -79,7 +79,11 @@ for en in range(1, 9):
     fitness, player_life, enemy_life, play_time = env_test.play(best_genome)
     health[f'{en}'].append([player_life, enemy_life])
 
+# LaTex table output
 player_string = ' & '.join([f'{value[0][0]}' for key, value in health.items()])
 enemy_string = ' & '.join([f'{value[0][1]}' for key, value in health.items()])
 print(f'Player health & {player_string}')
 print(f'Enemy health & {enemy_string}')
+
+# Save genome as np.array in txt
+np.savetxt('94.txt', best_genome)
