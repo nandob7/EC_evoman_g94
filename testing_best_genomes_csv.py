@@ -6,7 +6,7 @@ from demo_controller import player_controller
 
 # Parameters
 number_of_hidden_neurons = 10
-input_size = 20  # Hardcoded number of sensors
+input_size = 20
 random_trained = False
 csv_path = f'runs/generalist/best_genomes.csv'
 random_start = False
