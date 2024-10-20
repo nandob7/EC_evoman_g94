@@ -2,7 +2,6 @@ import numpy as np
 import os
 import csv
 from evoman.environment import Environment
-from neural_controller import Controller
 import random
 import time
 import inspect
@@ -12,7 +11,7 @@ from demo_controller import player_controller
 number_of_hidden_neurons = 10
 input_size = 20  # Hardcoded number of sensors
 population_size_per_gen = 100
-number_of_gen = 15
+
 
 def create_random_genome(size):
     """
@@ -281,7 +280,7 @@ def save_genomes_to_csv(parents, generation, csv_file_name='all_parents.csv'):
         experiment_name: Directory where the CSV file should be saved.
         csv_file_name: Name of the CSV file where the parents will be logged (default is 'all_parents.csv').
     """
-    csv_file_path = os.path.join(directory, csv_file_name)
+    csv_file_path = os.path.join(path, csv_file_name)
 
     with open(csv_file_path, 'a', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
@@ -295,23 +294,23 @@ def save_genomes_to_csv(parents, generation, csv_file_name='all_parents.csv'):
             genome_str = ' '.join(map(str, genome))  # Convert the genome list to a string
             csvwriter.writerow([generation + 1, genome_str, fitness])
 
-    # print(f"Saved parents to {csv_file_path}")
+    print(f"Saved parents to {csv_file_path}")
 
 
-def save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy,
-                        enemy_energy, play_times):
+def save_all_statistics(generation, population_fitness, player_energy,
+                        enemy_energy, play_times, best_genome):
     """
-    Save all relevant statistics (fitness, wins, energy, play time) for a generation into a CSV file.
+    Save all relevant statistics (fitness, energy, play time) for a generation into a CSV file.
     """
-    file_path = os.path.join(directory, "all_statistics.csv")
+    file_path = os.path.join(path, "all_statistics.csv")
 
     # Check if the file exists, if not, initialize with headers
     if not os.path.exists(file_path):
         with open(file_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(["Generation", "Highest Fitness", "Mean Fitness", "Std Dev Fitness",
-                             "Player Wins", "Enemy Wins", "Mean Player Energy", "Mean Enemy Energy",
-                             "Mean Play Time", "Min Play Time", "Max Play Time"])
+                             "Mean Player Energy", "Mean Enemy Energy", "Mean Play Time", "Min Play Time",
+                             "Max Play Time", "Best Genome"])
 
     # Calculate statistics
     highest_fitness = np.max(population_fitness)
@@ -324,18 +323,17 @@ def save_all_statistics(generation, population_fitness, player_wins, enemy_wins,
     max_play_time = np.max(play_times)
 
     fitness_stats = [highest_fitness, mean_fitness, std_dev_fitness]
-    win_stats = [player_wins, enemy_wins]
     energy_stats = [mean_player_energy, mean_enemy_energy]
     time_stats = [mean_play_time, min_play_time, max_play_time]
 
     # Combine everything into a single row
-    combined_stats = [generation + 1] + fitness_stats + win_stats + energy_stats + time_stats
+    combined_stats = [generation + 1] + fitness_stats + energy_stats + time_stats + [best_genome]
 
     with open(file_path, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(combined_stats)
 
-    # print(f"Saved statistics for generation {generation + 1} to {file_path}")
+    print(f"Saved statistics for generation {generation + 1} to {file_path}")
 
 
 # Define the initial set of parameters
@@ -347,35 +345,54 @@ params_ea = {
     "n_crossover_points": 3  # Example value, modify as needed
 }
 
-# Train for 1000 generations
-number_of_gen = 1000
 
-# Initialize other variables
-n_ea = 1  # Example value
+def save_experiment_parameters():
+    """
+    Saves the experiment parameters to a log file.
+    """
+    log_file_path = os.path.join(directory, f'experiment_log.txt')
+
+    # Open the log file and write the parameters
+    with open(log_file_path, 'w') as f:
+        f.write("Experiment Parameters\n")
+        f.write("=====================\n")
+        f.write(f"Number of Hidden Neurons: {number_of_hidden_neurons}\n")
+        f.write(f"Population Size per Generation: {population_size_per_gen}\n")
+        f.write(f"Number of Generations: {number_of_gen}\n")
+        f.write(f"Crossover Chance: {params_ea['crossover_chance']}\n")
+        f.write(f"Number of Crossover Points: {params_ea['n_crossover_points']}\n")
+        f.write(f"Mutation Chance: {params_ea['mutation_chance']}\n")
+        f.write(f"Number of Elite Individuals: {params_ea['num_elite']}\n")
+        f.write(f"Tournament Selection K-Members: {params_ea['k_members']}\n")
+
+        if custom_fitness:
+            fitness_expression = inspect.getsource(calc_cust_fitness).strip()
+            f.write(f"Fitness Calculation Expression:\n{fitness_expression}\n")
+        else:
+            f.write(f"Fitness Calculation Expression:\nDefault\n")
+
+        f.write("=====================\n")
+
+    print(f"Experiment parameters saved to {log_file_path}")
+
+
+# Initialize variables
+number_of_gen = 30
 custom_fitness = True
-random_start = False
-path = f"runs/competition/run_6"
-directory = path
+directory = f"runs/generalist/ea1_2358"
 beaten = {}
-enemies = [2, 4, 5, 7, 8]
+enemies = [2, 3, 5, 8]
 
 # Create run directory if it doesn't exist
 os.makedirs(directory, exist_ok=True)
-# Create a CSV file to save statistics and genomes for each generation
-stats_csv_file = os.path.join(path, 'specific_params_cust_fit_training_statistics_with_genomes.csv')
-if not os.path.exists(stats_csv_file):
-    with open(stats_csv_file, 'w', newline='') as f:
-        writer = csv.writer(f)
-        # Write the header for the CSV
-        writer.writerow([
-            "Generation", "Crossover Chance", "Mutation Chance", "Num Elite", "K Members", "N Crossover Points",
-            "Max Fitness", "Top 10 Avg Fitness", "Overall Avg Fitness", "Best Genome"
-        ])
+save_experiment_parameters()
 
 # Train with a single set of enemies or a predefined environment
-for run in range(1):
-    experiment_name = f'test_3_100pop_1000gen_cust_fit_all_enemy'
-
+for run in range(10):
+    experiment_name = f'test_{run + 1}'
+    path = os.path.join(directory, experiment_name)
+    # Create run directory if it doesn't exist
+    os.makedirs(path, exist_ok=True)
     headless = True
     if headless:
         os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -387,7 +404,7 @@ for run in range(1):
         player_controller=player_controller(10),
         enemymode="static",
         level=2,
-        randomini='yes' if random_start else 'no',
+        randomini='no',
         savelogs='no',
         visuals=False,
         enemies=enemies,
@@ -401,16 +418,14 @@ for run in range(1):
     # Initialize population with random genomes
     population = [create_random_genome(genome_size) for _ in range(population_size_per_gen)]
 
-    # Loop through 1000 generations
+    # Loop through 100 generations
     for generation in range(number_of_gen):
-        beaten = {f'{e}': 0 for e in enemies}
+        beaten = {f'{key}': 0 for key in enemies}
         print(f"Generation {generation + 1}/{number_of_gen}")
         gen_time = time.time()
 
         # Evaluate fitness of population
         population_fitness = []
-        player_wins = 0
-        enemy_wins = 0
         player_energy = []
         enemy_energy = []
         play_times = []
@@ -426,34 +441,15 @@ for run in range(1):
         top_10_avg_fitness = np.mean(sorted(population_fitness, reverse=True)[:10])
         overall_avg_fitness = np.mean(population_fitness)
 
-        # Find the best genome in the population (the one with the highest fitness)
-        population_with_fitness = list(zip(population, population_fitness))
-        best_genome = sorted(population_with_fitness, key=lambda x: x[1], reverse=True)[0][0]
-        best_genome_str = ' '.join(map(str, best_genome))  # Convert genome array to a string
-
-        # Save the statistics and the best genome for the current generation to the CSV file
-        with open(stats_csv_file, 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                generation + 1,  # Current generation
-                params_ea["crossover_chance"],
-                params_ea["mutation_chance"],
-                params_ea["num_elite"],
-                params_ea["k_members"],
-                params_ea["n_crossover_points"],
-                max_fitness,
-                top_10_avg_fitness,
-                overall_avg_fitness,
-                best_genome_str  # Save the best genome as a string
-            ])
-
-        # Save generation statistics (optional step)
-        save_all_statistics(generation, population_fitness, player_wins, enemy_wins, player_energy, enemy_energy,
-                            play_times)
-
         # Sort population by fitness
         population_with_fitness = list(zip(population, population_fitness))
         sorted_population_with_fitness = sort_by_fitness(population_with_fitness)
+        best_genome = sorted(population_with_fitness, key=lambda x: x[1], reverse=True)[0][0]
+        best_genome_str = ' '.join(map(str, best_genome))
+
+        # Save generation statistics (optional step)
+        save_all_statistics(generation, population_fitness, player_energy, enemy_energy,
+                            play_times, best_genome_str)
 
         # Select parents and generate offspring
         parents = parent_selection(sorted_population_with_fitness, num_elite=params_ea["num_elite"],
@@ -486,4 +482,4 @@ for run in range(1):
     end_time = time.time()
     total_time = end_time - start_time
     print(f"Total time trained: {total_time:.2f} seconds")
-    print(f"Evolution EA {n_ea}, Experiment {run} finished!")
+    print(f"Evolution, Experiment {run+1} finished!")

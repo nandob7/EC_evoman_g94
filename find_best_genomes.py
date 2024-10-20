@@ -28,29 +28,7 @@ for ea in eas:
                 'fitness': run_best_genome['Fitness']
             })
 
-# # Set up directory and file path
-# directory = 'runs/generalist'
-# run = 4
-# csv_path = os.path.join(directory, f'run_{run}/all_parents.csv')
-#
-# # Load the genomes CSV
-# genomes = pd.read_csv(csv_path)
-#
-# # Group by 'Generation' and find the genome with the highest fitness in each group
-# grouped = genomes.groupby('Generation')
-# for generation, group in grouped:
-#     # Get the best genome in this generation based on fitness
-#     best_genome = group.loc[group['Fitness'].idxmax()]
-#
-#     best_genomes.append({
-#         'generation': best_genome['Generation'],
-#         'genome': best_genome['Genome'],
-#         'fitness': best_genome['Fitness']
-#     })
-#
 best_genomes_df = pd.DataFrame(best_genomes)
-
-# output_csv_path = f'runs/{"random/" if random_start else ""}best_genomes.csv'
 output_csv_path = f'runs/generalist/best_genomes.csv'
 best_genomes_df.to_csv(output_csv_path, index=False)
 

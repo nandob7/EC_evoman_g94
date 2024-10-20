@@ -7,9 +7,7 @@ from demo_controller import player_controller
 # Parameters
 number_of_hidden_neurons = 10
 input_size = 20
-random_trained = False
 csv_path = f'runs/generalist/best_genomes.csv'
-random_start = False
 eas = [1, 2]
 groups = ['all_enemies', '2358']
 
@@ -32,7 +30,7 @@ for group in groups:
                     player_controller=player_controller(number_of_hidden_neurons),  # Pass the controller directly
                     enemymode="static",
                     level=2,
-                    randomini='yes' if random_start else 'no',
+                    randomini='no',
                     savelogs='no',
                     # speed='normal',
                     # visuals=True,

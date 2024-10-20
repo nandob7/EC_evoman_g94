@@ -8,12 +8,8 @@ from demo_controller import player_controller
 # Parameters
 desired_generation = 750
 number_of_hidden_neurons = 10
-run = 4
-ea = 1
-# experiment_name = f'runs/ea{ea}/enemy{enemy}/test_4_{run}_100pop_30gen_enemy{enemy}'
-experiment_name = f'runs/competition/run_{run}'
+experiment_name = f'runs/competition/run_1'
 input_size = 20  # Hardcoded number of sensors
-random_start = False
 
 # Create experiment directory if it doesn't exist
 if not os.path.exists(experiment_name):
@@ -26,7 +22,7 @@ env_test = Environment(
     player_controller=player_controller(number_of_hidden_neurons),  # Pass the controller directly
     enemymode="static",
     level=2,
-    randomini='yes' if random_start else 'no',
+    randomini='no',
     savelogs='no',
     # speed='normal',
     # visuals=True
